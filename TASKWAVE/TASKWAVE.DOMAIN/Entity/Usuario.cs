@@ -37,7 +37,8 @@ namespace TASKWAVE.DOMAIN.ENTITY
             EmailUsuario = userEmail;
             SenhaUsuario = userPassword;
             DataCriacaoUsuario = userCreationDate;
-        }
+            TokenRedefinicaoSenha = string.Empty;
+        }        
         public Usuario(int userID, string userName, string userEmail, string userPassword, DateTime userCreationDate)
         {
             IdUsuario = userID;

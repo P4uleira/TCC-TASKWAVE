@@ -11,7 +11,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #1c1f26;
+    background-color: #0D1321;
     padding: 10px 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
@@ -55,6 +55,14 @@ body {
     flex-direction:column;
     margin-left:300px;
    }
+
+.fieldShow {
+    width: 29%;
+    border: 1px solid white;
+    padding: 5px;
+    padding-left: 10px;
+    border-radius: 5px;
+}
 
 
 input[type="text"],
