@@ -56,12 +56,12 @@ namespace TASKWAVE.INFRA.Repositories
 
         public async Task<IEnumerable<Projeto>> GetAllAsync()
         {
-            return await _context.Projetos.ToListAsync();
+            return await _context.Projetos.Include(p => p.Equipes).ToListAsync();
         }
 
         public async Task<Projeto> GetByIdAsync(int id)
         {
-            return await _context.Projetos.FindAsync(id);
+            return await _context.Projetos.Include(p => p.Equipes).FirstOrDefaultAsync(p => p.IdProjeto == id);
         }
     }
 }

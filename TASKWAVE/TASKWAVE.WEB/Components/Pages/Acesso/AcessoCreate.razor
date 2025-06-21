@@ -1,52 +1,41 @@
-﻿@page "/SetorCreate"
+﻿@page "/AcessoCreate"
 @rendermode InteractiveServer
 @using TASKWAVE.WEB.Components.Layout
 @layout NavMenu
 @inject HttpClient Http
 
-<PageTitle>Criar Setor</PageTitle>
+<PageTitle>Criar Acesso</PageTitle>
 
 <main>
     <div class="container-flex">
-        
+
         <div class="linha-vertical"></div>
 
-        
+
         <section class="right-content">
             <div>
 
-                <h2 class="text-white mb-2">Meus Setores</h2>
-                <h4 class="text-muted mb-4">Criar Setor</h4>
+                <h2 class="text-white mb-2">Meus Acessos</h2>
+                <h4 class="text-muted mb-4">Criar Acesso</h4>
 
             </div>
 
-            <EditForm Model="@sectorToCreate" OnValidSubmit="HandleValidSubmit">
+            <EditForm Model="@accessToCreate" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-warning" />
 
                 <div class="form-group mb-3">
-                    <label>Nome do setor</label>
-                    <InputText class="form-control" @bind-Value="sectorToCreate.sectorName" placeholder="Insira o nome do Setor" />
+                    <label>Nome do Acesso</label>
+                    <InputText class="form-control" @bind-Value="accessToCreate.accessName" placeholder="Insira o nome do Acesso" />
                 </div>
 
                 <div class="form-group mb-3">
-                    <label>Descrição do setor</label>
-                    <InputTextArea class="form-control" @bind-Value="sectorToCreate.sectorDescription" placeholder="Insira a descrição do setor" />
-                </div>
-
-                <div class="form-group mb-4">
-                    <label>Ambiente do Setor</label>
-                    <InputSelect class="form-control" @bind-Value="sectorToCreate.environmentId">
-                        <option value="">Selecione o ambiente que o setor pertence</option>
-                        @foreach (var ambiente in environmentList)
-                        {
-                            <option value="@ambiente.environmentID">@ambiente.environmentName</option>
-                        }
-                    </InputSelect>
+                    <label>Descrição do Acesso</label>
+                    <InputTextArea class="form-control" @bind-Value="accessToCreate.accessDescription" placeholder="Insira a descrição do Acesso" />
                 </div>
 
                 <button type="submit" class="btn btn-primary w-25">
-                    Criar Setor
+                    Criar Acesso
                 </button>
             </EditForm>
 
@@ -60,37 +49,22 @@
 
 
 @code {
-    private List<AmbienteResponse> environmentList = new();
-    private SetorRequest sectorToCreate = new();
+    private AcessoRequest accessToCreate = new();
     private string mensageResponse;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetEnviromentAll();
-    }
-
-    private async Task GetEnviromentAll()
-    {
-        try
-        {
-            environmentList = await Http.GetFromJsonAsync<List<AmbienteResponse>>("api/Ambiente");
-        }
-        catch (Exception ex)
-        {
-            mensageResponse = $"Erro ao carregar ambientes: {ex.Message}";
-        }
-    }
 
     private async Task HandleValidSubmit()
     {
         try
         {
-            var response = await Http.PostAsJsonAsync("api/Setor", sectorToCreate);
+
+            accessToCreate.accessCreationDate = DateTime.Now;
+
+            var response = await Http.PostAsJsonAsync("api/Acesso", accessToCreate);
 
             if (response.IsSuccessStatusCode)
             {
-                mensageResponse = "Setor criado com sucesso.";
-                sectorToCreate = new();
+                mensageResponse = "Acesso criado com sucesso.";
+                accessToCreate = new();
             }
             else
             {

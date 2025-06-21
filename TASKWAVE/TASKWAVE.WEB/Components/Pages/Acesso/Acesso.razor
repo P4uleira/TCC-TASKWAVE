@@ -1,0 +1,155 @@
+﻿@page "/Acesso"
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<div class="sidebar">
+	<NavMenuOptions Options="@Options" />
+</div>
+
+<div class="m-md-5">
+	<h2>Meus Acessos</h2>
+	<h4 class="mt-3">Gerenciar Acessos</h4>		
+
+	@foreach (var access in accessList)
+	{
+
+		<div class="mb-3">
+			<label>@access.accessName</label>
+			<label>@access.accessDescription</label>
+			<button class="btn btn-sm btn-primary" @onclick="() => OpenEditModal(access)">Editar</button>
+		</div>
+
+	}
+</div>
+
+@if (selectedAccess != null)
+{
+	<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+		<div class="modal-dialog">
+			<div class="modal-content text-black">
+				<div class="modal-header">
+					<h5 class="modal-title">Editar Acesso</h5>
+					<button type="button" class="btn-close" @onclick="CloseModal"></button>
+				</div>
+				<div class="modal-body">
+					<EditForm Model="@selectedAccess" OnValidSubmit="UpdateAccess">
+						<DataAnnotationsValidator />
+						<ValidationSummary />
+
+						<div class="mb-3">
+							<label>Nome</label>
+							<InputText class="form-control" @bind-Value="selectedAccess.accessName" />
+						</div>
+
+						<div class="mb-3">
+							<label>Descrição</label>
+							<InputText class="form-control" @bind-Value="selectedAccess.accessDescription" />
+						</div>
+
+
+						<button type="button" class="btn btn-success" @onclick="() => DeleteAccess(selectedAccess.accessId)">Excluir Acesso</button>
+						<button type="submit" class="btn btn-success">Salvar</button>
+						<button type="button" class="btn btn-secondary ms-2" @onclick="CloseModal">Cancelar</button>
+					</EditForm>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+@code {
+
+	List<HyperLink> Options = new List<HyperLink>
+	{
+		new HyperLink("/AcessoCreate", "Criar Acesso", "Criar Acesso", HyperLink.TypeOfIcon.Add),
+		new HyperLink("/Acesso", "Gerenciar Acessos", "Gerenciar Acessos", HyperLink.TypeOfIcon.List)
+	};
+
+	private List<AcessoResponse> accessList = new();
+	private string mensageResponse;
+	private AcessoRequest selectedAccess;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await GetAllAccess();
+	}
+
+	#region CRUD
+	private async Task GetAllAccess()
+	{
+		try
+		{
+			accessList = await Http.GetFromJsonAsync<List<AcessoResponse>>("api/Acesso");
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao carregar Acessos: {ex.Message}";
+		}
+	}
+
+	
+	private async Task DeleteAccess(int accessId)
+	{
+		try
+		{
+			var response = await Http.DeleteAsync($"api/Acesso/{accessId}");
+
+			if (response.IsSuccessStatusCode)
+			{
+				await GetAllAccess();
+				CloseModal();
+			}
+			else
+			{
+				mensageResponse = "Erro ao excluir Acesso.";
+			}
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro: {ex.Message}";
+		}
+	}
+	
+	private async Task UpdateAccess()
+	{
+		try
+		{
+			var response = await Http.PutAsJsonAsync($"api/Acesso/{selectedAccess.accessId}", selectedAccess);
+			if (response.IsSuccessStatusCode)
+			{
+				await GetAllAccess();
+				CloseModal();
+			}
+			else
+			{
+				mensageResponse = "Erro ao atualizar Acesso.";
+			}
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro: {ex.Message}";
+		}
+	}
+	#endregion
+
+
+	#region Modal
+	private void OpenEditModal(AcessoResponse access)
+	{
+		selectedAccess = new AcessoRequest
+		{
+			accessId = access.accessId,
+			accessName = access.accessName,
+			accessDescription = access.accessDescription,
+			accessCreationDate = access.accessCreationDate
+		};
+	}
+
+	private void CloseModal()
+	{
+		selectedAccess = null;
+	}
+	#endregion
+}

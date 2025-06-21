@@ -1,4 +1,4 @@
 ﻿namespace TASKWAVE.DTO.Responses
 {
-    public record AcessoResponse(string accessName, string accessDescription, DateTime accessCreationDate);
+    public record AcessoResponse(int accessId, string accessName, string accessDescription, DateTime accessCreationDate);
 }

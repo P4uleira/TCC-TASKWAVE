@@ -11,17 +11,18 @@ namespace TASKWAVE.API.Controllers
     public class ProjetoController : ControllerBase
     {
         private readonly IProjetoService _projectService;
-
-        public ProjetoController(IProjetoService projectService)
+        private readonly IEquipeService _equipeService;
+        public ProjetoController(IProjetoService projectService, IEquipeService equipeService)
         {
             _projectService = projectService;
+            _equipeService = equipeService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProjetoResponse>>> GetAll()
         {
             var projetos = await _projectService.GetAllProjects();
-            var response = projetos.Select(project => new ProjetoResponse(project.NomeProjeto, project.DescricaoProjeto, project.DataCriacaoProjeto));
+            var response = projetos.Select(project => new ProjetoResponse(project.IdProjeto, project.NomeProjeto, project.DescricaoProjeto, project.DataCriacaoProjeto, (project.Equipes != null && project.Equipes.Any()) ? project.Equipes.First().IdEquipe : (int?)null));
             return Ok(response);
         }
 
@@ -31,7 +32,7 @@ namespace TASKWAVE.API.Controllers
             var project = await _projectService.GetProjectById(idProject);
             if (project == null)
                 return NotFound();
-            return Ok(new ProjetoResponse(project.NomeProjeto, project.DescricaoProjeto, project.DataCriacaoProjeto));
+            return Ok(new ProjetoResponse(project.IdProjeto, project.NomeProjeto, project.DescricaoProjeto, project.DataCriacaoProjeto, (project.Equipes != null && project.Equipes.Any()) ? project.Equipes.First().IdEquipe : (int?)null));
         }
 
         [HttpPost]
@@ -61,6 +62,21 @@ namespace TASKWAVE.API.Controllers
 
             existingProject.NomeProjeto = projectRequest.projectName;
             existingProject.DescricaoProjeto = projectRequest.projectDescription;
+            existingProject.DataCriacaoProjeto = projectRequest.projectCreationDate;
+
+            // Atualizar equipe associada
+            if (projectRequest.teamId.HasValue)
+            {
+                var team = await _equipeService.GetTeamById(projectRequest.teamId.Value); 
+                if (team != null)
+                {
+                    existingProject.Equipes = new List<Equipe> { team }; 
+                }
+            }
+            else
+            {
+                existingProject.Equipes?.Clear();
+            }
 
             await _projectService.UpdateProject(existingProject);
             return NoContent();

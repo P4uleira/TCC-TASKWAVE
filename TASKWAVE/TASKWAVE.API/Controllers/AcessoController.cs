@@ -21,7 +21,7 @@ namespace TASKWAVE.DTO.Controllers
         public async Task<ActionResult<IEnumerable<AcessoResponse>>> GetAll()
         {
             var access = await _accessService.GetAllAccesses();
-            var accessResponse = access.Select(access => new AcessoResponse(access.NomeAcesso, access.DescricaoAcesso, access.DataCriacaoAcesso));
+            var accessResponse = access.Select(access => new AcessoResponse(access.IdAcesso,access.NomeAcesso, access.DescricaoAcesso, access.DataCriacaoAcesso));
             return Ok(accessResponse);
         }
 
@@ -31,7 +31,7 @@ namespace TASKWAVE.DTO.Controllers
             var access = await _accessService.GetAccessById(idAccess);
             if (access == null)
                 return NotFound();
-            return Ok(new AcessoResponse(access.NomeAcesso, access.DescricaoAcesso, access.DataCriacaoAcesso));
+            return Ok(new AcessoResponse(access.IdAcesso, access.NomeAcesso, access.DescricaoAcesso, access.DataCriacaoAcesso));
         }
 
         [HttpPost]

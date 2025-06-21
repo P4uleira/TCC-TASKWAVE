@@ -39,7 +39,7 @@ namespace TASKWAVE.API.Controllers
         {
             var environment = new Ambiente(environmentRequest.environmentName, environmentRequest.environmentDescription);
             await _environmentService.CreateEnvironment(environment);
-            return CreatedAtAction(nameof(GetById), new { id = environment.IdAmbiente }, _environmentService.GetEnvironmentById(environment.IdAmbiente));
+            return Ok();
         }
 
 

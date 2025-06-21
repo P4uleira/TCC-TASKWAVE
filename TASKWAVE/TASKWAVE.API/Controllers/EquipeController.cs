@@ -21,7 +21,7 @@ namespace TASKWAVE.API.Controllers
         public async Task<ActionResult<IEnumerable<EquipeResponse>>> GetAll()
         {
             var teams = await _teamService.GetAllTeams();
-            var response = teams.Select(team => new EquipeResponse(team.NomeEquipe, team.DescricaoEquipe, team.SetorId));
+            var response = teams.Select(team => new EquipeResponse(team.IdEquipe, team.NomeEquipe, team.DescricaoEquipe, team.SetorId));
             return Ok(response);
         }
 
@@ -31,7 +31,7 @@ namespace TASKWAVE.API.Controllers
             var team = await _teamService.GetTeamById(idTeam);
             if (team == null)
                 return NotFound();
-            return Ok(new EquipeResponse(team.NomeEquipe, team.DescricaoEquipe, team.SetorId));
+            return Ok(new EquipeResponse(team.IdEquipe, team.NomeEquipe, team.DescricaoEquipe, team.SetorId));
         }
 
         [HttpPost("AddProjectToTeam/{TeamId}/{ProjectId}")]
