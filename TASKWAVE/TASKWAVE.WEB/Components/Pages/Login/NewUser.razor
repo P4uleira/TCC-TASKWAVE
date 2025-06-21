@@ -74,7 +74,8 @@
 		if (!alredyExistEmail)
 		{			
 			usuario.NomeUsuario = usuario.NomeUsuario.Trim();
-			usuario.EmailUsuario = usuario.EmailUsuario.Trim();			
+			usuario.EmailUsuario = usuario.EmailUsuario.Trim();
+			usuario.DataCriacaoUsuario = DateTime.Now;			
 			HttpResponseMessage response = await Http.PostAsJsonAsync<Usuario>("api/Usuario", usuario);
 
 			if (response.IsSuccessStatusCode)
