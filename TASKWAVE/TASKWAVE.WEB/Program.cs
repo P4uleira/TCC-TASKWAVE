@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddBlazorBootstrap();
+
 var baseAddress = builder.Configuration.GetValue<string>("BaseUrl");
 builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseAddress) });
 

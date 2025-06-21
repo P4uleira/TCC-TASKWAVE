@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TASKWAVE.DTO\TASKWAVE.DTO.csproj" />
   </ItemGroup>
 
