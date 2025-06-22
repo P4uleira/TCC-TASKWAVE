@@ -25,6 +25,8 @@ namespace TASKWAVE.DOMAIN.Services
 
         public async Task CreateUserToEquip(Usuario usuario, int teamId)
         {
+            var hasher = new PasswordHasher<Usuario>();
+            usuario.SenhaUsuario = hasher.HashPassword(usuario, usuario.SenhaUsuario);
             await _usuarioRepository.CreateUserToEquip(usuario, teamId);
         }
         public async Task UpdateUsuario(Usuario usuario)
