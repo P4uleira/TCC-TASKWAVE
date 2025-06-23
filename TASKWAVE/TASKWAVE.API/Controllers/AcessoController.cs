@@ -4,7 +4,7 @@ using TASKWAVE.DTO.Requests;
 using TASKWAVE.DOMAIN.Interfaces.Services;
 using TASKWAVE.DTO.Responses;
 
-namespace TASKWAVE.DTO.Controllers
+namespace TASKWAVE.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -65,6 +65,9 @@ namespace TASKWAVE.DOMAIN.Services
             return null; // senha inválida
         }
 
-
+        public async Task<Usuario> GetByEmailWithAccessesAsync(string email)
+        {
+            return await _usuarioRepository.GetByEmailWithAccessesAsync(email);
+        }
     }
 }

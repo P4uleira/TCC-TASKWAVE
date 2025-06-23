@@ -7,5 +7,7 @@ namespace TASKWAVE.DOMAIN.Interfaces.Repositories
         public Task CreateUserToEquip(Usuario usuario, int teamId);
 
         public Task<Usuario?> BuscarPorEmailAsync(string email);
+
+        public Task<Usuario?> GetByEmailWithAccessesAsync(string email);
     }
 }

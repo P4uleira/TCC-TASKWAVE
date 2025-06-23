@@ -16,6 +16,24 @@ namespace TASKWAVE.INFRA.Data.Mapping
             entity.Property(e => e.SenhaUsuario).HasColumnName("SENHA_USUARIO");
             entity.Property(e => e.DataCriacaoUsuario).HasColumnName("DATA_CRIACAO_USUARIO");
 
+            entity.HasMany(e => e.Acessos)
+              .WithMany(a => a.Usuarios)
+              .UsingEntity<Dictionary<string, object>>(
+                  "TB_ACESSO_USUARIO",
+                  l => l.HasOne<Acesso>()
+                        .WithMany()
+                        .HasForeignKey("ACESSO_ID")
+                        .HasConstraintName("FK_ACESSO_ID"),
+                  r => r.HasOne<Usuario>()
+                        .WithMany()
+                        .HasForeignKey("USUARIO_ID")
+                        .HasConstraintName("FK_USUARIO_ID"),
+                  j =>
+                  {
+                      j.HasKey("ACESSO_ID", "USUARIO_ID");
+                      j.ToTable("TB_ACESSO_USUARIO");
+                  }
+              );
         }
     }
 }
