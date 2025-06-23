@@ -5,149 +5,169 @@
 @inject HttpClient Http
 
 <div class="sidebar">
-	<NavMenuOptions Options="@Options" />
+    <NavMenuOptions Options="@Options" />
 </div>
 
 <div class="m-md-5">
-	<h2>Meus Ambientees</h2>
-	<h4 class="mt-3">Gerenciar Ambientees</h4>		
+    <h2>Meus Ambientes</h2>
+    <h4 class="mt-3 text-muted">Gerenciar Ambientes</h4>
 
-	@foreach (var environment in environmentList)
-	{
+    <div class="row mt-lg-3 text-center fw-bold">
+        <div class="col-5">Nome do Ambiente</div>
+        <div class="col-5">Descrição do Ambiente</div>
+        <div class="col-2">Editar</div>
+    </div>
 
-		<div class="mb-3">
-			<label>@environment.environmentName</label>
-			<label>@environment.environmentDescription</label>
-			<button class="btn btn-sm btn-primary" @onclick="() => OpenEditModal(environment)">Editar</button>
-		</div>
-
-	}
+    @foreach (var environment in environmentList)
+    {
+        <div class="row align-items-center mb-3">
+            <div class="col-5 d-flex justify-content-start">
+                <label class="fieldShow w-100">@environment.environmentName</label>
+            </div>
+            <div class="col-5 d-flex justify-content-start">
+                <label class="fieldShow w-100">@environment.environmentDescription</label>
+            </div>
+            <div class="col-2 d-flex justify-content-center align-items-center">
+                <button class="btn btn-sm btn-primary d-flex align-items-center justify-content-center mt-0" style="height: 55px; background-color:#0D1321" @onclick="() => OpenEditModal(environment)">
+                    <img src="images/Icons/Pencil.png" alt="Editar" style="width: 20px; height: 20px;" />
+                </button>
+            </div>
+        </div>
+    }
 </div>
+
+
+
 
 @if (selectedEnvironment != null)
 {
-	<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-		<div class="modal-dialog">
-			<div class="modal-content text-black">
-				<div class="modal-header">
-					<h5 class="modal-title">Editar Ambiente</h5>
-					<button type="button" class="btn-close" @onclick="CloseModal"></button>
-				</div>
-				<div class="modal-body">
-					<EditForm Model="@selectedEnvironment" OnValidSubmit="UpdateEnvironment">
-						<DataAnnotationsValidator />
-						<ValidationSummary />
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 1200px;">
+            <div class="modal-content text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; height: 100%;">
+                <div class="modal-header text-white border-bottom-0 px-4" style="background-color: #0D1321;">
+                    <h5 class="modal-title">Editando: @selectedEnvironment.environmentName</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
 
-						<div class="mb-3">
-							<label>Nome</label>
-							<InputText class="form-control" @bind-Value="selectedEnvironment.environmentName" />
-						</div>
+                <div class="modal-body d-flex flex-column justify-content-between" style="padding: 3rem 5rem;">
+                    <EditForm Model="@selectedEnvironment" OnValidSubmit="UpdateEnvironment">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
 
-						<div class="mb-3">
-							<label>Descrição</label>
-							<InputText class="form-control" @bind-Value="selectedEnvironment.environmentDescription" />
-						</div>
+                        <div class="mb-4">
+                            <label for="EnvNome" class="form-label">Nome do Ambiente</label>
+                            <InputText id="EnvNome" class="form-control text-white" style="background-color: #333339;" @bind-Value="selectedEnvironment.environmentName" />
+                        </div>
 
-						<button type="button" class="btn btn-success" @onclick="() => DeleteEnvironment(selectedEnvironment.environmentId)">Excluir Ambiente</button>
-						<button type="submit" class="btn btn-success">Salvar</button>
-						<button type="button" class="btn btn-secondary ms-2" @onclick="CloseModal">Cancelar</button>
-					</EditForm>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <div class="mb-4">
+                            <label for="EnvDescricao" class="form-label">Descrição do Ambiente</label>
+                            <InputTextArea id="EnvDescricao" class="form-control text-white" Rows="3" style="background-color: #333339;" @bind-Value="selectedEnvironment.environmentDescription" />
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-4 mt-5">
+                            <button type="submit" class="btn btn-success rounded-pill px-4" style="min-width: 180px;">Salvar Alterações</button>
+                            <button type="button" class="btn btn-danger rounded-pill px-4" style="min-width: 180px;" @onclick="() => DeleteEnvironment(selectedEnvironment.environmentId)">Excluir Ambiente</button>
+                            <button type="button" class="btn btn-secondary rounded-pill px-4" style="min-width: 180px;" @onclick="CloseModal">Cancelar</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
 }
+
+
 
 @code {
 
-	List<HyperLink> Options = new List<HyperLink>
-	{
-		new HyperLink("/AmbienteCreate", "Criar Ambiente", "Criar Ambiente", HyperLink.TypeOfIcon.Add),
-		new HyperLink("/Ambiente", "Gerenciar Ambientes", "Gerenciar Ambientes", HyperLink.TypeOfIcon.List)
-	};
+    List<HyperLink> Options = new List<HyperLink>
+    {
+        new HyperLink("/AmbienteCreate", "Criar Ambiente", "Criar Ambiente", HyperLink.TypeOfIcon.Add),
+        new HyperLink("/Ambiente", "Gerenciar", "Gerenciar", HyperLink.TypeOfIcon.List)
+    };
 
-	private List<AmbienteResponse> environmentList = new();
-	private string mensageResponse;
-	private AmbienteRequest selectedEnvironment;
+    private List<AmbienteResponse> environmentList = new();
+    private string mensageResponse;
+    private AmbienteRequest selectedEnvironment;
 
-	protected override async Task OnInitializedAsync()
-	{
-		await GetAllEnvironments();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllEnvironments();
+    }
 
-	#region CRUD
-	private async Task GetAllEnvironments()
-	{
-		try
-		{
-			environmentList = await Http.GetFromJsonAsync<List<AmbienteResponse>>("api/Ambiente");
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro ao carregar ambientes: {ex.Message}";
-		}
-	}
-
-	
-	private async Task DeleteEnvironment(int environmentId)
-	{
-		try
-		{
-			var response = await Http.DeleteAsync($"api/Ambiente/{environmentId}");
-
-			if (response.IsSuccessStatusCode)
-			{
-				await GetAllEnvironments();
-				CloseModal();
-			}
-			else
-			{
-				mensageResponse = "Erro ao excluir Ambiente.";
-			}
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro: {ex.Message}";
-		}
-	}
-	
-	private async Task UpdateEnvironment()
-	{
-		try
-		{
-			var response = await Http.PutAsJsonAsync($"api/Ambiente/{selectedEnvironment.environmentId}", selectedEnvironment);
-			if (response.IsSuccessStatusCode)
-			{
-				await GetAllEnvironments();
-				CloseModal();
-			}
-			else
-			{
-				mensageResponse = "Erro ao atualizar Ambiente.";
-			}
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro: {ex.Message}";
-		}
-	}
-	#endregion
+    #region CRUD
+    private async Task GetAllEnvironments()
+    {
+        try
+        {
+            environmentList = await Http.GetFromJsonAsync<List<AmbienteResponse>>("api/Ambiente");
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro ao carregar ambientes: {ex.Message}";
+        }
+    }
 
 
-	#region Modal
-	private void OpenEditModal(AmbienteResponse environment)
-	{
-		selectedEnvironment = new AmbienteRequest
-		{
-			environmentId = environment.environmentID,
-			environmentName = environment.environmentName,
-			environmentDescription = environment.environmentDescription
-		};
-	}
+    private async Task DeleteEnvironment(int environmentId)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"api/Ambiente/{environmentId}");
 
-	private void CloseModal()
-	{
-		selectedEnvironment = null;
-	}
-	#endregion
+            if (response.IsSuccessStatusCode)
+            {
+                await GetAllEnvironments();
+                CloseModal();
+            }
+            else
+            {
+                mensageResponse = "Erro ao excluir Ambiente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro: {ex.Message}";
+        }
+    }
+
+    private async Task UpdateEnvironment()
+    {
+        try
+        {
+            var response = await Http.PutAsJsonAsync($"api/Ambiente/{selectedEnvironment.environmentId}", selectedEnvironment);
+            if (response.IsSuccessStatusCode)
+            {
+                await GetAllEnvironments();
+                CloseModal();
+            }
+            else
+            {
+                mensageResponse = "Erro ao atualizar Ambiente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro: {ex.Message}";
+        }
+    }
+    #endregion
+
+
+    #region Modal
+    private void OpenEditModal(AmbienteResponse environment)
+    {
+        selectedEnvironment = new AmbienteRequest
+        {
+            environmentId = environment.environmentID,
+            environmentName = environment.environmentName,
+            environmentDescription = environment.environmentDescription
+        };
+    }
+
+    private void CloseModal()
+    {
+        selectedEnvironment = null;
+    }
+    #endregion
 }

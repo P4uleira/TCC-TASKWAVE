@@ -6,184 +6,184 @@
 
 <PageTitle>Gerenciar Setores</PageTitle>
 <div class="sidebar">
-	<NavMenuOptions Options="@Options" />
+    <NavMenuOptions Options="@Options" />
 </div>
 
 <div class="m-md-5">
-	<h2>Meus Setores</h2>
-	<h4 class="mt-3 text-muted">Gerenciar Setores</h4>
+    <h2>Meus Setores</h2>
+    <h4 class="mt-3 text-muted">Gerenciar Setores</h4>
 
-	<div class="d-flex mt-lg-3">
-		<p style="width: 30%">Setor</p>
-		<p style="width: 30%">Descrição</p>
-		<p style="width: 30%">Ambiente</p>
-		<p style="width: 10%">Editar</p>
-	</div>
-	@foreach (var sector in sectorList)
-	{
-		var ambienteNome = environmentListInUse.FirstOrDefault(a => a.environmentID == sector.environmentId)?.environmentName ?? "Ambiente não encontrado";
-		<div class="mb-3 d-flex gap-3">
-			<span class="fieldShow">@sector.sectorName</span>
-			<span class="fieldShow">@sector.sectorDescription</span>
-			<span class="fieldShow">@ambienteNome</span>
-			<div style="width: 10%">
-				<button style="width: 55px; padding:5px; background-color: #0D1321" class="btn btn-sm mt-0" @onclick="() => OpenEditModal(sector)"><img style="width: 20px" src="images/Icons/Pencil.png" alt="Alternate Text" /></button>
-			</div>
-		</div>		
-	}
+    <div class="d-flex mt-lg-3">
+        <p style="width: 30%">Setor</p>
+        <p style="width: 30%">Descrição</p>
+        <p style="width: 30%">Ambiente</p>
+        <p style="width: 10%">Editar</p>
+    </div>
+    @foreach (var sector in sectorList)
+    {
+        var ambienteNome = environmentListInUse.FirstOrDefault(a => a.environmentID == sector.environmentId)?.environmentName ?? "Ambiente não encontrado";
+        <div class="mb-3 d-flex gap-3">
+            <span class="fieldShow">@sector.sectorName</span>
+            <span class="fieldShow">@sector.sectorDescription</span>
+            <span class="fieldShow">@ambienteNome</span>
+            <div style="width: 10%">
+                <button style="width: 55px; padding:5px; background-color: #0D1321" class="btn btn-sm mt-0" @onclick="() => OpenEditModal(sector)"><img style="width: 20px" src="images/Icons/Pencil.png" alt="Alternate Text" /></button>
+            </div>
+        </div>
+    }
 </div>
 
 @if (selectedSector != null)
 {
-	<div class="modal fade show d-block" tabindex="-1">
-		<div class="modal-dialog modal-xl modal-dialog-centered">
-			<div class="modal-content text-black">
-				<div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
-					<h5 class="modal-title">Editando: @selectedSector.sectorName</h5>
-					<button type="button" class="btn-close" @onclick="CloseModal"></button>
-				</div>
-				<div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
-					<EditForm Model="@selectedSector" OnValidSubmit="UpdateSector">
-						<DataAnnotationsValidator />
-						<ValidationSummary />
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content text-black">
+                <div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
+                    <h5 class="modal-title">Editando: @selectedSector.sectorName</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
+                    <EditForm Model="@selectedSector" OnValidSubmit="UpdateSector">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
 
-						<div class="mb-3">
-							<label class="mb-3" for="SetorNome">Nome do Setor</label>
-							<InputText id="SetorNome" style="background-color: #333339" class="form-control text-white" @bind-Value="selectedSector.sectorName" />
-						</div>
+                        <div class="mb-3">
+                            <label class="mb-3" for="SetorNome">Nome do Setor</label>
+                            <InputText id="SetorNome" style="background-color: #333339" class="form-control text-white" @bind-Value="selectedSector.sectorName" />
+                        </div>
 
-						<div class="mb-3">
-							<label for="SetorDescricao">Descrição do Setor</label>
-							<InputTextArea id="SetorDescricao" style="background-color: #333339" Rows="3" class="form-control text-white" @bind-Value="selectedSector.sectorDescription" />
-						</div>
+                        <div class="mb-3">
+                            <label for="SetorDescricao">Descrição do Setor</label>
+                            <InputTextArea id="SetorDescricao" style="background-color: #333339" Rows="3" class="form-control text-white" @bind-Value="selectedSector.sectorDescription" />
+                        </div>
 
-						<div class="mb-3">
-							<label class="mb-3" for="AmbienteList">Ambiente do Setor</label>
-							<InputSelect id="AmbienteList" style="background-color: #333339" class="form-select text-white" @bind-Value="selectedSector.environmentId">
-								@foreach (var ambiente in environmentListInUse)
-								{
-									<option value="@ambiente.environmentID">@ambiente.environmentName</option>
-								}
-							</InputSelect>
-						</div>
+                        <div class="mb-3">
+                            <label class="mb-3" for="AmbienteList">Ambiente do Setor</label>
+                            <InputSelect id="AmbienteList" style="background-color: #333339" class="form-select text-white" @bind-Value="selectedSector.environmentId">
+                                @foreach (var ambiente in environmentListInUse)
+                                {
+                                    <option value="@ambiente.environmentID">@ambiente.environmentName</option>
+                                }
+                            </InputSelect>
+                        </div>
 
-						<div class="d-flex justify-content-center gap-5">
-							<button type="submit" class="btn btn-success rounded-pill w-25">Salvar Alterações</button>
-							<button type="button" class="btn btn-danger rounded-pill w-25" @onclick="() => DeleteSector(selectedSector.sectorId)">Excluir Setor</button>
-							<button type="button" class="btn btn-secondary rounded-pill w-25" @onclick="CloseModal">Cancelar</button>
-						</div>
-					</EditForm>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <div class="d-flex justify-content-center gap-5">
+                            <button type="submit" class="btn btn-success rounded-pill w-25">Salvar Alterações</button>
+                            <button type="button" class="btn btn-danger rounded-pill w-25" @onclick="() => DeleteSector(selectedSector.sectorId)">Excluir Setor</button>
+                            <button type="button" class="btn btn-secondary rounded-pill w-25" @onclick="CloseModal">Cancelar</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
 
-	List<HyperLink> Options = new List<HyperLink>
-	{
-		new HyperLink("/SetorCreate", "Criar Setor", "Criar Setor", HyperLink.TypeOfIcon.Add),
-		new HyperLink("/Setor", "Gerenciar Setores", "Gerenciar Setores", HyperLink.TypeOfIcon.List)
-	};
+    List<HyperLink> Options = new List<HyperLink>
+    {
+        new HyperLink("/SetorCreate", "Criar Setor", "Criar Setor", HyperLink.TypeOfIcon.Add),
+        new HyperLink("/Setor", "Gerenciar Setores", "Gerenciar Setores", HyperLink.TypeOfIcon.List)
+    };
 
-	private List<AmbienteResponse> environmentListInUse = new();
-	private List<SetorResponse> sectorList = new();
-	private string mensageResponse;
-	private SetorRequest selectedSector;
+    private List<AmbienteResponse> environmentListInUse = new();
+    private List<SetorResponse> sectorList = new();
+    private string mensageResponse;
+    private SetorRequest selectedSector;
 
-	protected override async Task OnInitializedAsync()
-	{
-		await GetAllEnvironment();
-		await GetAllSectors();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllEnvironment();
+        await GetAllSectors();
+    }
 
-	#region CRUD
-	private async Task GetAllEnvironment()
-	{
-		try
-		{
-			environmentListInUse = await Http.GetFromJsonAsync<List<AmbienteResponse>>("api/Ambiente");
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro ao carregar ambientes: {ex.Message}";
-		}
-	}
+    #region CRUD
+    private async Task GetAllEnvironment()
+    {
+        try
+        {
+            environmentListInUse = await Http.GetFromJsonAsync<List<AmbienteResponse>>("api/Ambiente");
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro ao carregar ambientes: {ex.Message}";
+        }
+    }
 
-	private async Task GetAllSectors()
-	{
-		try
-		{
-			sectorList = await Http.GetFromJsonAsync<List<SetorResponse>>("api/Setor");
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro ao carregar ambientes: {ex.Message}";
-		}
-	}
-
-	
-	private async Task DeleteSector(int sectorId)
-	{
-		try
-		{
-			var response = await Http.DeleteAsync($"api/Setor/{sectorId}");
-
-			if (response.IsSuccessStatusCode)
-			{
-				await GetAllSectors();
-				CloseModal();
-			}
-			else
-			{
-				mensageResponse = "Erro ao excluir setor.";
-			}
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro: {ex.Message}";
-		}
-	}
-	
-	private async Task UpdateSector()
-	{
-		try
-		{
-			var response = await Http.PutAsJsonAsync($"api/Setor/{selectedSector.sectorId}", selectedSector);
-			if (response.IsSuccessStatusCode)
-			{
-				await GetAllSectors();
-				CloseModal();
-			}
-			else
-			{
-				mensageResponse = "Erro ao atualizar setor.";
-			}
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro: {ex.Message}";
-		}
-	}
-	#endregion
+    private async Task GetAllSectors()
+    {
+        try
+        {
+            sectorList = await Http.GetFromJsonAsync<List<SetorResponse>>("api/Setor");
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro ao carregar ambientes: {ex.Message}";
+        }
+    }
 
 
-	#region Modal
-	private void OpenEditModal(SetorResponse sector)
-	{
-		selectedSector = new SetorRequest
-		{
-			sectorId = sector.sectorId,
-			sectorName = sector.sectorName,
-			sectorDescription = sector.sectorDescription,
-			environmentId = sector.environmentId
-		};
-	}
+    private async Task DeleteSector(int sectorId)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"api/Setor/{sectorId}");
 
-	private void CloseModal()
-	{
-		selectedSector = null;
-	}
-	#endregion
+            if (response.IsSuccessStatusCode)
+            {
+                await GetAllSectors();
+                CloseModal();
+            }
+            else
+            {
+                mensageResponse = "Erro ao excluir setor.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro: {ex.Message}";
+        }
+    }
+
+    private async Task UpdateSector()
+    {
+        try
+        {
+            var response = await Http.PutAsJsonAsync($"api/Setor/{selectedSector.sectorId}", selectedSector);
+            if (response.IsSuccessStatusCode)
+            {
+                await GetAllSectors();
+                CloseModal();
+            }
+            else
+            {
+                mensageResponse = "Erro ao atualizar setor.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro: {ex.Message}";
+        }
+    }
+    #endregion
+
+
+    #region Modal
+    private void OpenEditModal(SetorResponse sector)
+    {
+        selectedSector = new SetorRequest
+        {
+            sectorId = sector.sectorId,
+            sectorName = sector.sectorName,
+            sectorDescription = sector.sectorDescription,
+            environmentId = sector.environmentId
+        };
+    }
+
+    private void CloseModal()
+    {
+        selectedSector = null;
+    }
+    #endregion
 }
