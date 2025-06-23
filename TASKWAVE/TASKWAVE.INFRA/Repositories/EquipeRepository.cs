@@ -59,6 +59,23 @@ namespace TASKWAVE.INFRA.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task DeleteUserInTeam(int idUser, int idTeam)
+        {
+            var team = await _context.Equipes
+                .Include(e => e.Usuarios)
+                .FirstOrDefaultAsync(e => e.IdEquipe == idTeam);
+
+            if (team == null)
+                throw new Exception("Equipe não encontrada.");
+
+            var user = team.Usuarios.FirstOrDefault(u => u.IdUsuario == idUser);
+
+            if (user == null)
+                throw new Exception("Usuário não está vinculado a esta equipe.");
+
+            team.Usuarios.Remove(user);
+            await _context.SaveChangesAsync();
+        }
 
         public async Task DeleteAsync(int idTeam)
         {
@@ -85,6 +102,14 @@ namespace TASKWAVE.INFRA.Repositories
             return await _context.Equipes.FindAsync(idTeam);
         }
 
+        public async Task<List<Usuario>> BuscarUsuariosDaEquipeAsync(int idEquipe)
+        {
+            var equipe = await _context.Equipes
+                .Include(e => e.Usuarios)
+                .FirstOrDefaultAsync(e => e.IdEquipe == idEquipe);
+
+            return equipe?.Usuarios.ToList() ?? new List<Usuario>();
+        }
     }
 }
 
