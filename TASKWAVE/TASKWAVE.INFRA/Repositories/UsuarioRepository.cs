@@ -74,6 +74,13 @@ namespace TASKWAVE.INFRA.Repositories
                 .FirstOrDefaultAsync(u => u.EmailUsuario == email.Trim());
         }
 
+        public async Task<Usuario?> BuscarComEquipesPorIdAsync(int idUsuario)
+        {
+            return await _context.Usuarios
+                .Include(u => u.Equipes)
+                .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+        }
+
     }
 }
 
