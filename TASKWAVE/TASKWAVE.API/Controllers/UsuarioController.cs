@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TASKWAVE.DOMAIN.ENTITY;
 using TASKWAVE.DOMAIN.Interfaces.Services;
 using TASKWAVE.DOMAIN.Services;
@@ -7,6 +8,7 @@ using TASKWAVE.DTO.Responses;
 
 namespace TASKWAVE.API.Controllers
 {
+    [Authorize(Policy = "AcessoAdmin")]
     [Route("api/[controller]")]
     [ApiController]
     public class UsuarioController : ControllerBase

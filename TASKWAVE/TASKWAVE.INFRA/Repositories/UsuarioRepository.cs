@@ -81,6 +81,12 @@ namespace TASKWAVE.INFRA.Repositories
                 .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
         }
 
+        public async Task<Usuario> GetByEmailWithAccessesAsync(string email)
+        {
+            return await _context.Usuarios
+                .Include(u => u.Acessos)
+                .FirstOrDefaultAsync(u => u.EmailUsuario == email);
+        }
     }
 }
 

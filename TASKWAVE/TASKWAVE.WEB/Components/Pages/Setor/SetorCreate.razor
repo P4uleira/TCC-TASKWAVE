@@ -5,37 +5,35 @@
 @inject HttpClient Http
 
 <PageTitle>Criar Setor</PageTitle>
+<div class="sidebar">
+    <NavMenuOptions Options="@Options" />
+</div>
 
-<main>
-    <div class="container-flex">
-        
-        <div class="linha-vertical"></div>
 
-        
-        <section class="right-content">
+<main>           
+    <section>
+        <div class="m-md-5">        
             <div>
-
-                <h2 class="text-white mb-2">Meus Setores</h2>
-                <h4 class="text-muted mb-4">Criar Setor</h4>
-
+                <h2>Meus Setores</h2>
+                <h4 class="text-muted mt-3">Criar Setor</h4>
             </div>
 
             <EditForm Model="@sectorToCreate" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-warning" />
 
-                <div class="form-group mb-3">
-                    <label>Nome do setor</label>
+                <div class="form-group mb-3 mt-lg-3">
+                    <label class="mb-3">Nome do setor</label>
                     <InputText class="form-control" @bind-Value="sectorToCreate.sectorName" placeholder="Insira o nome do Setor" />
                 </div>
 
                 <div class="form-group mb-3">
                     <label>Descrição do setor</label>
-                    <InputTextArea class="form-control" @bind-Value="sectorToCreate.sectorDescription" placeholder="Insira a descrição do setor" />
+                    <InputTextArea Rows="3" class="form-control" @bind-Value="sectorToCreate.sectorDescription" placeholder="Insira a descrição do setor" />
                 </div>
 
                 <div class="form-group mb-4">
-                    <label>Ambiente do Setor</label>
+                    <label class="mb-3">Ambiente do Setor</label>
                     <InputSelect class="form-control" @bind-Value="sectorToCreate.environmentId">
                         <option value="">Selecione o ambiente que o setor pertence</option>
                         @foreach (var ambiente in environmentList)
@@ -44,22 +42,28 @@
                         }
                     </InputSelect>
                 </div>
-
-                <button type="submit" class="btn btn-primary w-25">
-                    Criar Setor
-                </button>
+                <div class="d-flex w-100 justify-content-center">
+                    <button type="submit" style="background-color: #748CAB" class="btn text-white w-25 rounded-pill">
+                        Criar Setor
+                    </button>
+                </div>
             </EditForm>
 
             @if (!string.IsNullOrEmpty(mensageResponse))
             {
                 <div class="mt-3 alert alert-info">@mensageResponse</div>
             }
-        </section>
-    </div>
+        </div>
+    </section>    
 </main>
 
 
 @code {
+    List<HyperLink> Options = new List<HyperLink>
+    {
+        new HyperLink("/SetorCreate", "Criar Setor", "Criar Setor", HyperLink.TypeOfIcon.Add),
+        new HyperLink("/Setor", "Gerenciar Setores", "Gerenciar Setores", HyperLink.TypeOfIcon.List)
+    };
     private List<AmbienteResponse> environmentList = new();
     private SetorRequest sectorToCreate = new();
     private string mensageResponse;
@@ -109,22 +113,11 @@
 
     .container-flex {
         display: flex;
-        height: 100vh;
-        background-color: #333339;
+        height: 100vh;        
         position: relative;
-    }
+    }    
 
-    .linha-vertical {
-        width: 1px;
-        height: 100vh;
-        background-color: #ccc;
-        position: absolute;
-        left: 250px;
-        top: 0;
-    }
-
-    .right-content {
-        margin-left: 250px;
+    .right-content {        
         flex: 1;
         display: flex;
         flex-direction: column;

@@ -87,5 +87,11 @@ namespace TASKWAVE.DOMAIN.Services
                 DescricaoEquipe = e.DescricaoEquipe
             }).ToList();
         }
+        
+        public async Task<Usuario> GetByEmailWithAccessesAsync(string email)
+        {
+            return await _usuarioRepository.GetByEmailWithAccessesAsync(email);
+
+        }
     }
 }
