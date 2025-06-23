@@ -4,13 +4,13 @@
 @layout NavMenu
 @inject HttpClient Http
 
-<div class="sidebar">
+<div class="sidebar" style="width:270px;">
     <NavMenuOptions Options="@Options" />
 </div>
 
 <div class="m-md-5">
-    <h2>Meus Acessos</h2>
-    <h4 class="mt-3 text-muted">Gerenciar Acessos</h4>
+    <h2  class="mb-2">Meus Acessos</h2>
+    <h4 class="mb-4 text-muted">Gerenciar Acessos</h4>
 
     <div class="d-flex align-items-center gap-3 mt-lg-4 mb-2">
         <label class="text-start" style="width: 45%;">Nome do Acesso</label>
@@ -24,7 +24,7 @@
             <label class="fieldShow" style="width: 45%;">@access.accessName</label>
             <label class="fieldShow" style="width: 45%;">@access.accessDescription</label>
             <div style="width: 10%; display: flex; justify-content: center;">
-                <button class="btn btn-sm btn-primary d-flex align-items-center justify-content-center mt-0" style="height: 38px; background-color:#0D1321"  @onclick="() => OpenEditModal(access)">
+                <button class="btn btn-sm d-flex align-items-center justify-content-center mt-0" style="height: 38px; background-color:#0D1321"  @onclick="() => OpenEditModal(access)">
                     <img style="width: 20px;" src="images/Icons/Pencil.png" alt="Editar" />
                 </button>
             </div>
@@ -76,7 +76,7 @@
     List<HyperLink> Options = new List<HyperLink>
     {
         new HyperLink("/AcessoCreate", "Criar Acesso", "Criar Acesso", HyperLink.TypeOfIcon.Add),
-        new HyperLink("/Acesso", "Gerenciar", "Gerenciar", HyperLink.TypeOfIcon.List)
+        new HyperLink("/Acesso", "Gerenciar Acessos", "Gerenciar Acessos", HyperLink.TypeOfIcon.List)
     };
 
     private List<AcessoResponse> accessList = new();

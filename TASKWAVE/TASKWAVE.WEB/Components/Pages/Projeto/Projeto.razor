@@ -4,13 +4,13 @@
 @layout NavMenu
 @inject HttpClient Http
 
-<div class="sidebar">
+<div class="sidebar" style="width:270px;">
     <NavMenuOptions Options="@Options" />
 </div>
 
 <div class="m-md-5">
-    <h2>Meus Projetos</h2>
-    <h4 class="mt-3 text-muted">Gerenciar Projetos</h4>
+    <h2  class="mb-2">Meus Projetos</h2>
+    <h4 class="mb-4 text-muted">Gerenciar Projetos</h4>
 
     <div class="d-flex align-items-center gap-3 mt-lg-4 mb-2">
         <label style="width: 22.5%;">Nome do Projeto</label>
@@ -30,7 +30,7 @@
             <label class="fieldShow" style="width: 22.5%;">@project.projectCreationDate</label>
             <label class="fieldShow" style="width: 22.5%;">@teamName</label>
             <div style="width: 10%;" class="d-flex justify-content-center">
-                <button class="btn btn-sm btn-primary mt-0" style="background-color:#0D1321;" @onclick="() => OpenEditModal(project)">
+                <button class="btn btn-sm mt-0 d-flex justify-content-center" style="background-color:#0D1321;" @onclick="() => OpenEditModal(project)">
                     <img style="width: 20px;" src="images/Icons/Pencil.png" alt="Editar" />
                 </button>
             </div>
@@ -97,7 +97,7 @@
     List<HyperLink> Options = new List<HyperLink>
     {
         new HyperLink("/ProjetoCreate", "Criar Projeto", "Criar Projeto", HyperLink.TypeOfIcon.Add),
-        new HyperLink("/Projeto", "Gerenciar", "Gerenciar", HyperLink.TypeOfIcon.List)
+        new HyperLink("/Projeto", "Gerenciar Projetos", "Gerenciar Projetos", HyperLink.TypeOfIcon.List)
     };
 
     private List<EquipeResponse> teamListInUse = new();

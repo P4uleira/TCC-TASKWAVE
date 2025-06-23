@@ -4,18 +4,18 @@
 @layout NavMenu
 @inject HttpClient Http
 
-<div class="sidebar">
+<div class="sidebar" style="width:270px;">
     <NavMenuOptions Options="@Options" />
 </div>
 
 <div class="m-md-5">
-    <h2>Meus Ambientes</h2>
-    <h4 class="mt-3 text-muted">Gerenciar Ambientes</h4>
+    <h2  class="mb-2">Meus Ambientes</h2>
+    <h4 class="mb-4 text-muted">Gerenciar Ambientes</h4>
 
-    <div class="row mt-lg-3 text-center fw-bold">
-        <div class="col-5">Nome do Ambiente</div>
-        <div class="col-5">Descrição do Ambiente</div>
-        <div class="col-2">Editar</div>
+    <div class="row mt-lg-3">
+        <div class="col-5 mb-3">Nome do Ambiente</div>
+        <div class="col-5 mb-3">Descrição do Ambiente</div>
+        <div class="col-2 d-flex justify-content-center mb-3">Editar</div>
     </div>
 
     @foreach (var environment in environmentList)
@@ -28,7 +28,7 @@
                 <label class="fieldShow w-100">@environment.environmentDescription</label>
             </div>
             <div class="col-2 d-flex justify-content-center align-items-center">
-                <button class="btn btn-sm btn-primary d-flex align-items-center justify-content-center mt-0" style="height: 55px; background-color:#0D1321" @onclick="() => OpenEditModal(environment)">
+                <button class="btn btn-sm d-flex align-items-center justify-content-center mt-0" style="height: 40px; background-color:#0D1321" @onclick="() => OpenEditModal(environment)">
                     <img src="images/Icons/Pencil.png" alt="Editar" style="width: 20px; height: 20px;" />
                 </button>
             </div>
@@ -83,7 +83,7 @@
     List<HyperLink> Options = new List<HyperLink>
     {
         new HyperLink("/AmbienteCreate", "Criar Ambiente", "Criar Ambiente", HyperLink.TypeOfIcon.Add),
-        new HyperLink("/Ambiente", "Gerenciar", "Gerenciar", HyperLink.TypeOfIcon.List)
+        new HyperLink("/Ambiente", "Gerenciar Ambientes", "Gerenciar Ambientes", HyperLink.TypeOfIcon.List)
     };
 
     private List<AmbienteResponse> environmentList = new();

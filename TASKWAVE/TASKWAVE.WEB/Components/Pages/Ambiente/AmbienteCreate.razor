@@ -7,28 +7,23 @@
 <PageTitle>Criar Ambiente</PageTitle>
 
 <main>
-    <div class="sidebar">
+    <div class="sidebar" style="width:270px;">
         <NavMenuOptions Options="@Options" />
     </div>
-    <div class="container-flex">
 
-        <div class="linha-vertical"></div>
-
-
-        <section class="right-content">
+    <section>
+        <div class="m-md-5">
             <div>
-
                 <h2 class="text-white mb-2">Meus Ambientes</h2>
                 <h4 class="text-muted mb-4">Criar Ambiente</h4>
-
             </div>
 
             <EditForm Model="@environmentToCreate" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-warning" />
 
-                <div class="form-group mb-3">
-                    <label>Nome do Ambiente</label>
+                <div class="form-group mb-3 ">
+                    <label class="mb-3">Nome do Ambiente</label>
                     <InputText class="form-control" @bind-Value="environmentToCreate.environmentName" placeholder="Insira o nome do Ambiente" />
                 </div>
 
@@ -37,25 +32,25 @@
                     <InputTextArea class="form-control" @bind-Value="environmentToCreate.environmentDescription" placeholder="Insira a descrição do Ambiente" />
                 </div>
 
-                <button type="submit" class="btn btn-primary w-25" style="background-color:#748CAB; border-radius:25px;">
-                    Criar Ambiente
-                </button>
+                <div class="d-flex w-100 justify-content-center">
+                    <button type="submit" class="btn text-white w-25 rounded-pill" style="background-color: #748CAB;">
+                        Criar Ambiente
+                    </button>
+                </div>
             </EditForm>
 
             @if (!string.IsNullOrEmpty(mensageResponse))
             {
                 <div class="mt-3 alert alert-info">@mensageResponse</div>
             }
-        </section>
-    </div>
+        </div>
+    </section>
 </main>
-
-
 @code {
     List<HyperLink> Options = new List<HyperLink>
  {
      new HyperLink("/AmbienteCreate", "Criar Ambiente", "Criar Ambiente", HyperLink.TypeOfIcon.Add),
-     new HyperLink("/Ambiente", "Gerenciar", "Gerenciar", HyperLink.TypeOfIcon.List)
+     new HyperLink("/Ambiente", "Gerenciar Ambientes", "Gerenciar Ambientes", HyperLink.TypeOfIcon.List)
  };
 
     private AmbienteRequest environmentToCreate = new();
@@ -94,14 +89,6 @@
         position: relative;
     }
 
-    .linha-vertical {
-        width: 1px;
-        height: 100vh;
-        background-color: #ccc;
-        position: absolute;
-        top: 0;
-    }
-
     .right-content {
         flex: 1;
         display: flex;
@@ -125,7 +112,6 @@
     .btn-primary {
         background-color: #1fb6ff;
         border: none;
-
     }
 
         .btn-primary:hover {
