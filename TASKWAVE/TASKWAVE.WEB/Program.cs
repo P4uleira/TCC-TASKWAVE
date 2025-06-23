@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using TASKWAVE.WEB;
 using TASKWAVE.WEB.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,8 +12,19 @@ builder.Services.AddRazorComponents()
 builder.Services.AddBlazorBootstrap();
 
 var baseAddress = builder.Configuration.GetValue<string>("BaseUrl");
-builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(baseAddress) });
+builder.Services.AddScoped<AuthorizationMessageHandler>();
 
+builder.Services.AddScoped(sp =>
+{
+    var navigation = sp.GetRequiredService<NavigationManager>();
+    var js = sp.GetRequiredService<IJSRuntime>();
+    var handler = sp.GetRequiredService<AuthorizationMessageHandler>();
+
+    return new HttpClient(handler)
+    {
+        BaseAddress = new Uri(baseAddress)
+    };
+});
 
 var app = builder.Build();
 
