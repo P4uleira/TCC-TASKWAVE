@@ -403,3 +403,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/TASKWAVE/TASKWAVE.API/appsettings.json
+/TASKWAVE/TASKWAVE.API/appsettings.json
