@@ -1,4 +1,14 @@
 ﻿namespace TASKWAVE.DTO.Requests
 {
-    public record UsuarioRequest(string userName, string userEmail, string userPassword, DateTime userCreationDate);
+    public class UsuarioRequest {        
+        public string userName { get; set; } = string.Empty;
+
+        public string userEmail { get; set; } = string.Empty;
+
+        public string userPassword { get; set; } = string.Empty;
+
+        public DateTime userCreationDate { get; set; } = DateTime.Now;
+
+        public bool? newPassword { get; set; }
+    }
 }
