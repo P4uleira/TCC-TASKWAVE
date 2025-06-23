@@ -46,6 +46,12 @@ namespace TASKWAVE.API.Controllers
             await _teamService.InsertUserToTeam(userId, TeamId);
         }
 
+        [HttpDelete("DeleteUserInTeam/{TeamId}/{userId}")]
+        public async Task DeleteUserInTeam(int TeamId, int userId)
+        {
+            await _teamService.DeleteUserInTeam(userId, TeamId);
+        }
+
         [HttpPost]
         public async Task<ActionResult> Create(EquipeRequest teamRequest)
         {

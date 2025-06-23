@@ -25,10 +25,18 @@ namespace TASKWAVE.DOMAIN.Services
 
         public async Task CreateUserToEquip(Usuario usuario, int teamId)
         {
+            var hasher = new PasswordHasher<Usuario>();
+            usuario.SenhaUsuario = hasher.HashPassword(usuario, usuario.SenhaUsuario);
             await _usuarioRepository.CreateUserToEquip(usuario, teamId);
         }
         public async Task UpdateUsuario(Usuario usuario)
         {
+            if (usuario.TokenRedefinicaoSenha == "1")
+            {
+                var hasher = new PasswordHasher<Usuario>();
+                usuario.SenhaUsuario = hasher.HashPassword(usuario, usuario.SenhaUsuario);
+                usuario.TokenRedefinicaoSenha = string.Empty;
+            }
             await _usuarioRepository.UpdateAsync(usuario);
         }
 
@@ -65,9 +73,25 @@ namespace TASKWAVE.DOMAIN.Services
             return null; // senha inválida
         }
 
+        public async Task<List<Equipe>> BuscarEquipesDoUsuarioAsync(int idUsuario)
+        {
+            var usuario = await _usuarioRepository.BuscarComEquipesPorIdAsync(idUsuario);
+
+            if (usuario == null)
+                throw new Exception("Usuário não encontrado.");
+
+            return usuario.Equipes.Select(e => new Equipe
+            {
+                IdEquipe = e.IdEquipe,
+                NomeEquipe = e.NomeEquipe,
+                DescricaoEquipe = e.DescricaoEquipe
+            }).ToList();
+        }
+        
         public async Task<Usuario> GetByEmailWithAccessesAsync(string email)
         {
             return await _usuarioRepository.GetByEmailWithAccessesAsync(email);
+
         }
     }
 }

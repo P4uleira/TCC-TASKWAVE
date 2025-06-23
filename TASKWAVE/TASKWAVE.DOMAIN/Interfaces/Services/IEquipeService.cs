@@ -11,5 +11,6 @@ namespace TASKWAVE.DOMAIN.Interfaces.Services
         Task<Equipe> GetTeamById(int id);
         Task InsertProjectToTeam(int projectId, int teamId);
         Task InsertUserToTeam(int userId, int teamId);
+        Task DeleteUserInTeam(int userId, int teamID);
     }
 }

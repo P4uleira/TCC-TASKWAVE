@@ -32,6 +32,11 @@ namespace TASKWAVE.DOMAIN.Services
         {
             await _teamRepository.InsertUserToTeam(idUser, idTeam);
         }
+
+        public async Task DeleteUserInTeam(int idUser, int idTeam)
+        {
+            await _teamRepository.DeleteUserInTeam(idUser, idTeam);
+        }
         public async Task DeleteTeam(int idTeam)
         {
             await _teamRepository.DeleteAsync(idTeam);
