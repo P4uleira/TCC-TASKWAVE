@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TASKWAVE.DOMAIN.ENTITY;
 using TASKWAVE.DOMAIN.Interfaces.Services;
+using TASKWAVE.DOMAIN.Services;
 using TASKWAVE.DTO.Requests;
 using TASKWAVE.DTO.Responses;
 
@@ -83,6 +84,28 @@ namespace TASKWAVE.API.Controllers
         public async Task<ActionResult> Delete(int idTeam)
         {
             await _teamService.DeleteTeam(idTeam);
+            return NoContent();
+        }
+
+        [HttpGet("LinkedProjects")]
+        public async Task<ActionResult<IEnumerable<ProjetoEquipeResponse>>> GetProjectTeamLinksAsync([FromQuery] int? teamId,[FromQuery] int? projectId)
+        {
+            var dados = await _teamService.GetProjectTeamLinksAsync(teamId, projectId);
+
+            var result = dados.Select(d => new ProjetoEquipeResponse(
+                d.TeamId,
+                d.TeamName,
+                d.ProjectId,
+                d.ProjectName
+            ));
+
+            return Ok(result);
+        }
+
+        [HttpDelete("DeleteProjectFromTeam/{teamId}/{projectId}")]
+        public async Task<IActionResult> DeleteProjectFromTeam(int teamId, int projectId)
+        {
+            await _teamService.DeleteProjectFromTeam(teamId, projectId);
             return NoContent();
         }
     }

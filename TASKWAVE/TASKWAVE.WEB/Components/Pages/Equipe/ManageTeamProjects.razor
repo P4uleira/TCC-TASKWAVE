@@ -1,0 +1,212 @@
+﻿@page "/ManageTeamProjects"
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<PageTitle>Gerenciar Projetos de equipes</PageTitle>
+
+<div class="sidebar">
+</div>
+
+<div class="m-md-5">
+	<h2>Gerenciar Projetos de equipes</h2>
+	<h4 class="mt-3 text-muted">Lista de projetos para adicionar equipes</h4>
+
+	<div class="d-flex mt-lg-3 gap-3">
+		<p style="width: 50%">Projeto</p>
+		<p style="width: 50%">Equipe</p>
+	</div>
+
+	<div class="mb-3 d-flex gap-3">
+		<select style="background-color: #333339" class="form-select text-white w-50" @bind="selectedProjectId">
+			<option value="">Selecione um projeto</option>
+			@foreach (var project in projectList)
+			{
+				<option value="@project.projectId">@project.projectName</option>
+			}
+		</select>
+
+		<select style="background-color: #333339" class="form-select text-white w-50" @bind="selectedTeamId">
+			<option value="">Selecione uma equipe</option>
+			@foreach (var team in teamList)
+			{
+				<option value="@team.teamId">@team.teamName</option>
+			}
+		</select>
+	</div>
+	<div class="d-flex w-100 justify-content-center">
+		<button style="background-color: #748CAB" class="btn text-white w-25 rounded-pill mt-xl-5 " @onclick="GetProjectTeamLinksAsync">Buscar Vinculos</button>
+	</div>
+
+
+	@if (linkedProjects != null && linkedProjects.Any())
+	{
+		<div class="mt-lg-5">
+
+			@foreach (var item in linkedProjects)
+			{
+				<div class="mb-3 d-flex gap-3">
+					<span class="fieldShow_1">@item.projectName</span>
+					<span class="fieldShow_1">@item.teamName</span>
+					<div style="width: 10%">
+						<button style="width: 55px; padding:5px; background-color: #E53114" class="btn btn-sm mt-0" @onclick="() => ConfirmDeleteLink(item.teamId, item.projectId)">
+							<img style="width: 20px" src="images/Icons/Rectangle_57.png" alt="Alternate Text" />
+						</button>
+					</div>
+				</div>	
+			}
+
+		</div>
+	}
+
+	@if (showDeleteModal)
+	{
+		<div class="modal fade show d-block" tabindex="-1">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content text-black">
+					<div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
+						<h5 class="modal-title">Excluindo Projeto da Equipe</h5>
+						<button type="button" class="btn-close bg-white" @onclick="() => showDeleteModal = false"></button>
+					</div>
+					<div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
+						<div class="d-flex justify-content-center gap-5 flex-column align-items-center" style="background-color: #333339">
+							<div>
+								<h5 class="modal-title">Confirmar Exclusão</h5>
+							</div>
+
+							<div>
+								<p>Tem certeza que deseja excluir o vínculo entre o projeto e a equipe?</p>
+							</div>
+						</div>
+						<div class="d-flex justify-content-center gap-5">
+							<button class="btn btn-danger rounded-pill w-25" @onclick="DeleteLinkAsync">Excluir</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	@if (!string.IsNullOrWhiteSpace(mensageResponse))
+	{
+		<div class="alert alert-info mt-3">@mensageResponse</div>
+	}
+</div>
+
+
+@code {
+
+	List<HyperLink> Options = new List<HyperLink>
+	{
+		//new HyperLink("/SetorCreate", "Criar Setor", "Criar Setor", HyperLink.TypeOfIcon.Add),
+		//new HyperLink("/Setor", "Gerenciar Setores", "Gerenciar Setores", HyperLink.TypeOfIcon.List)
+	};
+
+	private List<EquipeResponse> teamList = new();
+	private List<ProjetoResponse> projectList = new();
+	private List<ProjetoEquipeResponse> linkedProjects;
+
+	private int selectedTeamId;
+	private int selectedProjectId;
+
+	private bool showDeleteModal = false;
+	private int teamIdToDelete;
+	private int projectIdToDelete;
+
+	private string mensageResponse;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await GetAllTeams();
+		await GetAllProjects();
+	}
+
+	#region CRUD
+	private async Task GetAllTeams()
+	{
+		try
+		{
+			teamList = await Http.GetFromJsonAsync<List<EquipeResponse>>("api/Equipe");
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao carregar equipes: {ex.Message}";
+		}
+	}
+
+	private async Task GetAllProjects()
+	{
+		try
+		{
+			projectList = await Http.GetFromJsonAsync<List<ProjetoResponse>>("api/Projeto");
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao carregar projetos: {ex.Message}";
+		}
+	}
+
+	#endregion
+
+	private async Task GetProjectTeamLinksAsync()
+	{
+		try
+		{
+
+			var url = "api/Equipe/LinkedProjects";
+
+			// Monta query string com os parâmetros que foram selecionados
+			var queryParams = new List<string>();
+			if (selectedTeamId != 0) queryParams.Add($"teamId={selectedTeamId}");
+			if (selectedProjectId != 0) queryParams.Add($"projectId={selectedProjectId}");
+
+			if (queryParams.Any())
+				url += "?" + string.Join("&", queryParams);
+
+			linkedProjects = await Http.GetFromJsonAsync<List<ProjetoEquipeResponse>>(url);
+
+			if (linkedProjects == null || !linkedProjects.Any())
+				mensageResponse = "Nenhum vínculo encontrado para os filtros informados.";
+			else
+				mensageResponse = ""; // Limpa mensagem
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao buscar vínculos: {ex.Message}";
+		}
+	}
+
+	private async Task DeleteLinkAsync()
+	{
+		try
+		{
+			var response = await Http.DeleteAsync($"api/Equipe/DeleteProjectFromTeam/{teamIdToDelete}/{projectIdToDelete}");
+
+			if (response.IsSuccessStatusCode)
+			{
+				mensageResponse = "Vínculo excluído com sucesso!";
+				showDeleteModal = false;
+
+				// Atualiza a lista de vínculos
+				await GetProjectTeamLinksAsync();
+			}
+			else
+			{
+				mensageResponse = "Erro ao excluir vínculo: " + await response.Content.ReadAsStringAsync();
+			}
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro na requisição: {ex.Message}";
+		}
+	}
+
+	private void ConfirmDeleteLink(int teamId, int projectId)
+	{
+		teamIdToDelete = teamId;
+		projectIdToDelete = projectId;
+		showDeleteModal = true;
+	}
+	
+}
