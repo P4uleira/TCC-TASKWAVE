@@ -93,10 +93,25 @@ namespace TASKWAVE.API.Controllers
             var dados = await _teamService.GetProjectTeamLinksAsync(teamId, projectId);
 
             var result = dados.Select(d => new ProjetoEquipeResponse(
-                d.TeamId,
-                d.TeamName,
-                d.ProjectId,
-                d.ProjectName
+                d.teamId,
+                d.teamName,
+                d.projectId,
+                d.projectName
+            ));
+
+            return Ok(result);
+        }
+
+        [HttpGet("LinkedUsers")]
+        public async Task<ActionResult<IEnumerable<UsuarioEquipeResponse>>> GetUserTeamLinksAsync([FromQuery] int? teamId, [FromQuery] int? userId)
+        {
+            var dados = await _teamService.GetUserTeamLinksAsync(teamId, userId);
+
+            var result = dados.Select(d => new UsuarioEquipeResponse(
+                d.teamId,
+                d.teamName,
+                d.userId,
+                d.userName
             ));
 
             return Ok(result);

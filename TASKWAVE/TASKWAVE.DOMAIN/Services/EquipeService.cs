@@ -52,14 +52,21 @@ namespace TASKWAVE.DOMAIN.Services
             return await _teamRepository.GetByIdAsync(idTeam);
         }
 
-        public async Task<IEnumerable<(int TeamId, string TeamName, int ProjectId, string ProjectName)>> GetProjectTeamLinksAsync(int? teamId, int? projectId)
+        public async Task<IEnumerable<(int teamId, string teamName, int projectId, string projectName)>> GetProjectTeamLinksAsync(int? teamId, int? projectId)
         {
             return await _teamRepository.GetProjectTeamLinksAsync(teamId, projectId);
+        }
+        
+        public async Task<IEnumerable<(int teamId, string teamName, int userId, string userName)>> GetUserTeamLinksAsync(int? teamId, int? userId)
+        {
+            return await _teamRepository.GetUserTeamLinksAsync(teamId, userId);
         }
 
         public async Task DeleteProjectFromTeam(int teamId, int projectId)
         {
             await _teamRepository.DeleteProjectFromTeam(teamId, projectId);
         }
+
+        
     }
 }
