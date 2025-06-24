@@ -111,7 +111,7 @@ namespace TASKWAVE.INFRA.Repositories
             return equipe?.Usuarios.ToList() ?? new List<Usuario>();
         }
 
-        public async Task<IEnumerable<(int TeamId, string TeamName, int ProjectId, string ProjectName)>> GetProjectTeamLinksAsync(int? teamId, int? projectId)
+        public async Task<IEnumerable<(int teamId, string teamName, int projectId, string projectName)>> GetProjectTeamLinksAsync(int? teamId, int? projectId)
         {
             var query = _context.Equipes
                 .Include(e => e.Projetos)
@@ -125,14 +125,14 @@ namespace TASKWAVE.INFRA.Repositories
                     .Where(p => !projectId.HasValue || p.IdProjeto == projectId.Value)
                     .Select(p => new
                     {
-                        TeamId = e.IdEquipe,
-                        TeamName = e.NomeEquipe,
-                        ProjectId = p.IdProjeto,
-                        ProjectName = p.NomeProjeto
+                        teamId = e.IdEquipe,
+                        teamName = e.NomeEquipe,
+                        projectId = p.IdProjeto,
+                        projectName = p.NomeProjeto
                     }))
                 .ToListAsync();
 
-            return result.Select(x => (x.TeamId, x.TeamName, x.ProjectId, x.ProjectName));
+            return result.Select(x => (x.teamId, x.teamName, x.projectId, x.projectName));
         }
 
         public async Task DeleteProjectFromTeam(int teamId, int projectId)
@@ -149,6 +149,30 @@ namespace TASKWAVE.INFRA.Repositories
                 equipe.Projetos.Remove(projeto);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<IEnumerable<(int teamId, string teamName, int userId, string userName)>> GetUserTeamLinksAsync(int? teamId, int? userId)
+        {
+            var query = _context.Equipes
+                .Include(e => e.Usuarios)
+                .AsQueryable();
+
+            if (teamId.HasValue)
+                query = query.Where(e => e.IdEquipe == teamId.Value);
+
+            var result = await query
+                .SelectMany(e => e.Usuarios
+                    .Where(u => !userId.HasValue || u.IdUsuario == userId.Value)
+                    .Select(u => new
+                    {
+                        teamId = e.IdEquipe,
+                        teamName = e.NomeEquipe,
+                        userId = u.IdUsuario,
+                        userName = u.NomeUsuario
+                    }))
+                .ToListAsync();
+
+            return result.Select(x => (x.teamId, x.teamName, x.userId, x.userName));
         }
     }
 }
