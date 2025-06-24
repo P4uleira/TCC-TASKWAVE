@@ -10,5 +10,8 @@ namespace TASKWAVE.DOMAIN.Interfaces.Services
         Task<IEnumerable<Usuario>> GetAllUsuarios();
         Task<Usuario> GetUsuarioById(int id);
         Task CreateUserToEquip(Usuario usuario, int teamId);
+        Task<List<Equipe>> BuscarEquipesDoUsuarioAsync(int idUsuario);
+        Task<Usuario> GetByEmailWithAccessesAsync(string email);
+
     }
 }

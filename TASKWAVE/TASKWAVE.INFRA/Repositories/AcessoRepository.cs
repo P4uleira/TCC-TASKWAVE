@@ -68,6 +68,47 @@ namespace TASKWAVE.INFRA.Repositories
             return await _context.Acessos.FindAsync(idAccess);
         }
 
+        public async Task<IEnumerable<(int accessId, string accessName, int userId, string userName)>> GetAccessUserLinksAsync(int? accessId, int? userId)
+        {
+            var query = _context.Acessos
+                .Include(e => e.Usuarios)
+                .AsQueryable();
+
+            if (accessId.HasValue)
+                query = query.Where(a => a.IdAcesso == accessId.Value);
+
+            var result = await query
+                .SelectMany(e => e.Usuarios
+                    .Where(u => !userId.HasValue || u.IdUsuario == userId.Value)
+                    .Select(u => new
+                    {
+                        accessId = e.IdAcesso,
+                        accessName = e.NomeAcesso,
+                        userId = u.IdUsuario,
+                        userName = u.NomeUsuario
+                    }))
+                .ToListAsync();
+
+            return result.Select(x => (x.accessId, x.accessName, x.userId, x.userName));
+        }
+
+        public async Task DeleteAccessInUser(int accessId, int userId)
+        {
+            var access = await _context.Acessos
+                .Include(a => a.Usuarios)
+                .FirstOrDefaultAsync(a => a.IdAcesso == accessId);
+
+            if (access == null)
+                throw new Exception("Acesso não encontrada.");
+
+            var user = access.Usuarios.FirstOrDefault(u => u.IdUsuario == userId);
+
+            if (user == null)
+                throw new Exception("Usuário não está vinculado a esta equipe.");
+
+            access.Usuarios.Remove(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }
 

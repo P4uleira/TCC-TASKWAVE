@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TASKWAVE.DOMAIN.ENTITY;
 using TASKWAVE.DOMAIN.Interfaces.Services;
+using TASKWAVE.DOMAIN.Services;
 using TASKWAVE.DTO.Requests;
 using TASKWAVE.DTO.Responses;
 
@@ -60,6 +62,11 @@ namespace TASKWAVE.API.Controllers
 
             existingUser.NomeUsuario = projectRequest.userName;
             existingUser.EmailUsuario = projectRequest.userEmail;
+
+            if (projectRequest.newPassword == true)
+            {
+                existingUser.TokenRedefinicaoSenha = "1";
+            }
             existingUser.SenhaUsuario = projectRequest.userPassword;
 
             await _userService.UpdateUsuario(existingUser);
@@ -71,6 +78,20 @@ namespace TASKWAVE.API.Controllers
         {
             await _userService.DeleteUsuario(idUser);
             return NoContent();
+        }
+
+        [HttpGet("{id}/Equipes")]
+        public async Task<ActionResult<List<EquipeResponse>>> GetEquipesDoUsuario(int id)
+        {
+            try
+            {
+                var equipes = await _userService.BuscarEquipesDoUsuarioAsync(id);
+                return Ok(equipes);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { mensagem = ex.Message });
+            }
         }
     }
 }

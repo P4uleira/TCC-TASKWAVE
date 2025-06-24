@@ -30,6 +30,8 @@ namespace TASKWAVE.DOMAIN.ENTITY
 
         public Usuario()
         {
+            Equipes = default!;
+            TokenRedefinicaoSenha = string.Empty;
         }
         public Usuario( string userName, string userEmail, string userPassword, DateTime userCreationDate)
         {
@@ -37,6 +39,7 @@ namespace TASKWAVE.DOMAIN.ENTITY
             EmailUsuario = userEmail;
             SenhaUsuario = userPassword;
             DataCriacaoUsuario = userCreationDate;
+            Equipes = default!;
             TokenRedefinicaoSenha = string.Empty;
         }        
         public Usuario(int userID, string userName, string userEmail, string userPassword, DateTime userCreationDate)
