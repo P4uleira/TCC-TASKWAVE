@@ -8,11 +8,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\NovaPasta\**" />
+    <Content Remove="Components\NovaPasta\**" />
+    <EmbeddedResource Remove="Components\NovaPasta\**" />
+    <None Remove="Components\NovaPasta\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Components\Pages\Relatorios\Component.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TASKWAVE.DTO\TASKWAVE.DTO.csproj" />
+    <ProjectReference Include="..\TASKWAVE.INFRA\TASKWAVE.INFRA.csproj" />
   </ItemGroup>
 
   <ItemGroup>
