@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TASKWAVE.DTO\TASKWAVE.DTO.csproj" />
-    <ProjectReference Include="..\TASKWAVE.INFRA\TASKWAVE.INFRA.csproj" />
   </ItemGroup>
 
   <ItemGroup>
