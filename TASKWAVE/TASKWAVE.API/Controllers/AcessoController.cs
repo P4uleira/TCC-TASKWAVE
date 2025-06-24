@@ -71,5 +71,26 @@ namespace TASKWAVE.API.Controllers
             await _accessService.DeleteAccess(idAccess);
             return NoContent();
         }
+
+        [HttpGet("LinkedAccessUsers")]
+        public async Task<ActionResult<IEnumerable<AcessoUsuarioResponse>>> GetAccessUserLinksAsync([FromQuery] int? accessId, [FromQuery] int? userId)
+        {
+            var dados = await _accessService.GetAccessUserLinksAsync(accessId, userId);
+
+            var result = dados.Select(d => new AcessoUsuarioResponse(
+                d.accessId,
+                d.accessName,
+                d.userId,
+                d.userName
+            ));
+
+            return Ok(result);
+        }
+
+        [HttpDelete("DeleteAccessInUser/{accessId}/{userId}")]
+        public async Task DeleteAccessInUser(int accessId, int userId)
+        {
+            await _accessService.DeleteAccessInUser(accessId, userId);
+        }
     }
 }

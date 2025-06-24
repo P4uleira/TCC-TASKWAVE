@@ -1,0 +1,212 @@
+﻿@page "/ManageAccessUsers"
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<PageTitle>Gerenciar Acessos de usuários</PageTitle>
+
+<div class="sidebar">
+</div>
+
+<div class="m-md-5">
+	<h2>Gerenciar Acessos de usuários</h2>
+	<h4 class="mt-3 text-muted">Lista de usuários para adicionar acessos</h4>
+
+	<div class="d-flex mt-lg-3 gap-3">
+		<p style="width: 50%">Usuários</p>
+		<p style="width: 50%">Acessos</p>
+	</div>
+
+	<div class="mb-3 d-flex gap-3">
+		<select style="background-color: #333339" class="form-select text-white w-50" @bind="selectedUserId">
+			<option value="">Selecione um usuário</option>
+			@foreach (var user in userList)
+			{
+				<option value="@user.userID">@user.userName</option>
+			}
+		</select>
+
+		<select style="background-color: #333339" class="form-select text-white w-50" @bind="selectedAccessId">
+			<option value="">Selecione um acesso</option>
+			@foreach (var access in accessList)
+			{
+				<option value="@access.accessId">@access.accessName</option>
+			}
+		</select>
+	</div>
+	<div class="d-flex w-100 justify-content-center">
+		<button style="background-color: #748CAB" class="btn text-white w-25 rounded-pill mt-xl-5 " @onclick="GetAccessUserLinksAsync">Buscar Vinculos</button>
+	</div>
+
+
+	@if (linkedAccessUsers != null && linkedAccessUsers.Any())
+	{
+		<div class="mt-lg-5">
+
+			@foreach (var item in linkedAccessUsers)
+			{
+				<div class="mb-3 d-flex gap-3">
+					<span class="fieldShow_1">@item.userName</span>
+					<span class="fieldShow_1">@item.accessName</span>
+					<div style="width: 10%">
+						<button style="width: 55px; padding:5px; background-color: #E53114" class="btn btn-sm mt-0" @onclick="() => ConfirmDeleteLink(item.accessId, item.userId)">
+							<img style="width: 20px" src="images/Icons/Rectangle_57.png" alt="Alternate Text" />
+						</button>
+					</div>
+				</div>	
+			}
+
+		</div>
+	}
+
+	@if (showDeleteModal)
+	{
+		<div class="modal fade show d-block" tabindex="-1">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content text-black">
+					<div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
+						<h5 class="modal-title">Excluindo Usuário da Equipe</h5>
+						<button type="button" class="btn-close bg-white" @onclick="() => showDeleteModal = false"></button>
+					</div>
+					<div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
+						<div class="d-flex justify-content-center gap-5 flex-column align-items-center" style="background-color: #333339">
+							<div>
+								<h5 class="modal-title">Confirmar Exclusão</h5>
+							</div>
+
+							<div>
+								<p>Tem certeza que deseja excluir o vínculo entre o usuário e a equipe?</p>
+							</div>
+						</div>
+						<div class="d-flex justify-content-center gap-5">
+							<button class="btn btn-danger rounded-pill w-25" @onclick="DeleteLinkAsync">Excluir</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	@if (!string.IsNullOrWhiteSpace(mensageResponse))
+	{
+		<div class="alert alert-info mt-3">@mensageResponse</div>
+	}
+</div>
+
+
+@code {
+
+	List<HyperLink> Options = new List<HyperLink>
+	{
+		//new HyperLink("/SetorCreate", "Criar Setor", "Criar Setor", HyperLink.TypeOfIcon.Add),
+		//new HyperLink("/Setor", "Gerenciar Setores", "Gerenciar Setores", HyperLink.TypeOfIcon.List)
+	};
+
+	private List<AcessoResponse> accessList = new();
+	private List<UsuarioResponse> userList = new();
+	private List<AcessoUsuarioResponse> linkedAccessUsers;
+
+	private int selectedAccessId;
+	private int selectedUserId;
+
+	private bool showDeleteModal = false;
+	private int accessIdToDelete;
+	private int userIdToDelete;
+
+	private string mensageResponse;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await GetAllAccess();
+		await GetAllUsers();
+	}
+
+	#region CRUD
+	private async Task GetAllAccess()
+	{
+		try
+		{
+			accessList = await Http.GetFromJsonAsync<List<AcessoResponse>>("api/Acesso");
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao carregar acessos: {ex.Message}";
+		}
+	}
+
+	private async Task GetAllUsers()
+	{
+		try
+		{
+			userList = await Http.GetFromJsonAsync<List<UsuarioResponse>>("api/Usuario");
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao carregar usuários: {ex.Message}";
+		}
+	}
+
+	#endregion
+
+	private async Task GetAccessUserLinksAsync()
+	{
+		try
+		{
+
+			var url = "api/Acesso/linkedAccessUsers";
+
+			// Monta query string com os parâmetros que foram selecionados
+			var queryParams = new List<string>();
+			if (selectedAccessId != 0) queryParams.Add($"accessId={selectedAccessId}");
+			if (selectedUserId != 0) queryParams.Add($"userId={selectedUserId}");
+
+			if (queryParams.Any())
+				url += "?" + string.Join("&", queryParams);
+
+			linkedAccessUsers = await Http.GetFromJsonAsync<List<AcessoUsuarioResponse>>(url);
+
+			if (linkedAccessUsers == null || !linkedAccessUsers.Any())
+				mensageResponse = "Nenhum vínculo encontrado para os filtros informados.";
+			else
+				mensageResponse = ""; // Limpa mensagem
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao buscar vínculos: {ex.Message}";
+		}
+	}
+
+	private async Task DeleteLinkAsync()
+	{
+		try
+		{
+			var response = await Http.DeleteAsync($"api/Acesso/DeleteAccessInUser/{accessIdToDelete}/{userIdToDelete}");
+
+			if (response.IsSuccessStatusCode)
+			{
+				mensageResponse = "Vínculo excluído com sucesso!";
+				showDeleteModal = false;
+
+				// Atualiza a lista de vínculos
+				await GetAccessUserLinksAsync();
+			}
+			else
+			{
+				mensageResponse = "Erro ao excluir vínculo: " + await response.Content.ReadAsStringAsync();
+			}
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro na requisição: {ex.Message}";
+		}
+	}
+
+	private void ConfirmDeleteLink(int teamId, int userId)
+	{
+		accessIdToDelete = teamId;
+		userIdToDelete = userId;
+		showDeleteModal = true;
+	}
+	
+}
