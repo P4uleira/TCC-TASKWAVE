@@ -30,15 +30,30 @@ namespace TASKWAVE.DOMAIN.Helpers
                     break;
                 case TypeOfIcon.Add:
                     TypeIcon = "bi-plus-square-fill-nav-menu";
-                    break;                
+                    break;
+                case TypeOfIcon.Calendar:
+                    TypeIcon = "bi-calendar-week-nav-menu";
+                    break;
+                case TypeOfIcon.ClipBoard:
+                    TypeIcon = "bi-clipboard-data-fill-nav-menu";
+                    break;
+                case TypeOfIcon.History:
+                    TypeIcon = "bi-clock-history-nav-menu";
+                    break;
+                case TypeOfIcon.Reports:
+                    TypeIcon = "bi-file-earmark-medical-fill-nav-menu";
+                    break;
             }
         }
-
         public enum TypeOfIcon
         {
             Home,
             Add,
-            List
+            List,
+            Calendar,
+            ClipBoard,
+            History,
+            Reports
         }
 
     }
