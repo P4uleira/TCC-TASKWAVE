@@ -110,6 +110,46 @@ namespace TASKWAVE.INFRA.Repositories
 
             return equipe?.Usuarios.ToList() ?? new List<Usuario>();
         }
+
+        public async Task<IEnumerable<(int TeamId, string TeamName, int ProjectId, string ProjectName)>> GetProjectTeamLinksAsync(int? teamId, int? projectId)
+        {
+            var query = _context.Equipes
+                .Include(e => e.Projetos)
+                .AsQueryable();
+
+            if (teamId.HasValue)
+                query = query.Where(e => e.IdEquipe == teamId.Value);
+
+            var result = await query
+                .SelectMany(e => e.Projetos
+                    .Where(p => !projectId.HasValue || p.IdProjeto == projectId.Value)
+                    .Select(p => new
+                    {
+                        TeamId = e.IdEquipe,
+                        TeamName = e.NomeEquipe,
+                        ProjectId = p.IdProjeto,
+                        ProjectName = p.NomeProjeto
+                    }))
+                .ToListAsync();
+
+            return result.Select(x => (x.TeamId, x.TeamName, x.ProjectId, x.ProjectName));
+        }
+
+        public async Task DeleteProjectFromTeam(int teamId, int projectId)
+        {
+            var equipe = await _context.Equipes
+                .Include(e => e.Projetos)
+                .FirstOrDefaultAsync(e => e.IdEquipe == teamId);
+
+            if (equipe == null) return;
+
+            var projeto = equipe.Projetos.FirstOrDefault(p => p.IdProjeto == projectId);
+            if (projeto != null)
+            {
+                equipe.Projetos.Remove(projeto);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
 
