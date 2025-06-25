@@ -6,7 +6,6 @@
         EmAndamento,
         EmAprovacao,
         Concluida,
-        EmAprovacao,
         Cancelada,
         EmAtraso
     }
