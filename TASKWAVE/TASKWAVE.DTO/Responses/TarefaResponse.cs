@@ -2,5 +2,5 @@
 
 namespace TASKWAVE.DTO.Responses
 {
-    public record TarefaResponse(string taskName, string taskDescription, SituacaoTarefaEnum taskStatus, PrioridadeTarefaEnum taskPriority, DateTime taskCreationDate, int projectId);
+    public record TarefaResponse(int idTask, string taskName, string taskDescription, SituacaoTarefaEnum taskStatus, PrioridadeTarefaEnum taskPriority, DateTime taskCreationDate, DateTime? taskPlannedDate, DateTime? taskFinalDate, int projectId);
 }

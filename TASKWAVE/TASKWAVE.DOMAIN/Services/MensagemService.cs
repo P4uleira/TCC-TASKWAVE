@@ -38,5 +38,10 @@ namespace TASKWAVE.DOMAIN.Services
         {
             return await _messageRepository.GetByIdAsync(idMessage);
         }
+
+        public async Task<IEnumerable<Mensagem>> GetMensagensPorTarefaAsync(int idTarefa)
+        {
+            return await _messageRepository.GetMensagensPorTarefaAsync(idTarefa);
+        }
     }
 }
