@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TASKWAVE.DOMAIN.ENTITY;
 using TASKWAVE.DOMAIN.Interfaces.Services;
 using TASKWAVE.DTO.Requests;
@@ -32,7 +33,7 @@ namespace TASKWAVE.API.Controllers
             if (message == null)
                 return NotFound();
             return Ok(new MensagemResponse(message.ConteudoMensagem, message.DataEnvioMensagem, message.TarefaID));
-        }
+        }        
 
         [HttpPost]
         public async Task<ActionResult> Create(MensagemRequest messageRequest)
@@ -40,6 +41,20 @@ namespace TASKWAVE.API.Controllers
             var message = new Mensagem(messageRequest.messageContent, messageRequest.messageSentDate, messageRequest.taskId);
             await _messageService.CreateMessage(message);
             return CreatedAtAction(nameof(GetById), new { id = message.IdMensagem }, null);
+        }
+
+        [HttpGet("Tarefa/{idTarefa}/Mensagens")]
+        public async Task<ActionResult<IEnumerable<MensagemResponse>>> GetMensagensPorTarefa(int idTarefa)
+        {
+            var mensagens = await _messageService.GetMensagensPorTarefaAsync(idTarefa);
+
+            var response = mensagens.Select(m => new MensagemResponse(
+                m.ConteudoMensagem,
+                m.DataEnvioMensagem,
+                m.TarefaID
+            ));
+
+            return Ok(response);
         }
 
         [HttpPut("{idMessage}")]

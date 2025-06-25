@@ -9,5 +9,6 @@ namespace TASKWAVE.DOMAIN.Interfaces.Services
         Task DeleteMessage(int idMessage);
         Task<IEnumerable<Mensagem>> GetAllMessages();
         Task<Mensagem> GetMessageById(int idMessage);
+        Task<IEnumerable<Mensagem>> GetMensagensPorTarefaAsync(int idTarefa);
     }
 }

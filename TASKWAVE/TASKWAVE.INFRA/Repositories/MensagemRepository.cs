@@ -44,6 +44,13 @@ namespace TASKWAVE.INFRA.Repositories
         {
             return await _context.Mensagens.FindAsync(idMessage);
         }
+        public async Task<IEnumerable<Mensagem>> GetMensagensPorTarefaAsync(int idTarefa)
+        {
+            return await _context.Mensagens
+                .Where(m => m.TarefaID == idTarefa)                
+                .OrderBy(m => m.DataEnvioMensagem)
+                .ToListAsync();
+        }
 
     }
 }
