@@ -1,0 +1,77 @@
+﻿@page "/Desempenho"
+@rendermode InteractiveServer
+@layout NavMenu
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@using TASKWAVE.DOMAIN.Enums
+@using TASKWAVE.WEB.Components.Layout
+
+<div class="sidebar">
+    <NavMenuOptions Options="@Options" />
+</div>
+
+<h3 class="mb-4" style="padding-top: 4dvh; padding-left: 4dvw;">📊 Desempenho / Tarefas</h3>
+
+@if (tarefas == null)
+{
+    <p>Carregando dados...</p>
+}
+else if (!tarefas.Any())
+{
+    <p>Nenhuma tarefa encontrada.</p>
+}
+else
+{
+    <div style="margin-left:4dvw; margin-top:4dvh; min-width: 70%; max-width: 70%; max-height: 70%; min-height: 60dvh !important;">
+        <canvas id="graficoBarras"></canvas>
+    </div>
+}
+
+@code {
+    List<HyperLink> Options = new()
+    {
+        new HyperLink("/TarefaCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+        new HyperLink("/Historico", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
+        new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
+        new HyperLink("/Calendario", "Calendário", "Calendário", HyperLink.TypeOfIcon.Calendar),
+        new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
+    };
+
+    private List<TarefaResponse> tarefas;
+    private bool jsExecutado = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tarefas = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa") ?? new();
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!jsExecutado && tarefas != null && tarefas.Any())
+        {
+            jsExecutado = true;
+
+            await Task.Delay(300);
+
+            var labels = new[] { "Pendente", "Em Andamento", "Em Aprovação", "Concluída", "Cancelada" };
+            var dados = new[]
+            {
+                tarefas.Count(t => t.taskStatus.ToString() == "Pendente"),
+                tarefas.Count(t => t.taskStatus.ToString() == "EmAndamento"),
+                tarefas.Count(t => t.taskStatus.ToString() == "EmAprovacao"),
+                tarefas.Count(t => t.taskStatus.ToString() == "Concluida"),
+                tarefas.Count(t => t.taskStatus.ToString() == "Cancelada"),
+            };
+
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("gerarGraficoBarras", labels, dados);
+            }
+            catch (JSException ex)
+            {
+                Console.WriteLine($"Erro ao chamar JS: {ex.Message}");
+            }
+        }
+    }
+}

@@ -45,7 +45,6 @@ namespace TASKWAVE.DOMAIN.Helpers
                     break;
             }
         }
-
         public enum TypeOfIcon
         {
             Home,

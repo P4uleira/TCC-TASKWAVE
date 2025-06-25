@@ -1,4 +1,9 @@
-﻿<Router AppAssembly="@typeof(Program).Assembly">
+﻿<HeadContent>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/chart-utils.js"></script>
+</HeadContent>
+
+<Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />

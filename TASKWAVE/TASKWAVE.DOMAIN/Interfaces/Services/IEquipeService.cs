@@ -12,5 +12,8 @@ namespace TASKWAVE.DOMAIN.Interfaces.Services
         Task InsertProjectToTeam(int projectId, int teamId);
         Task InsertUserToTeam(int userId, int teamId);
         Task DeleteUserInTeam(int userId, int teamID);
+        Task<IEnumerable<(int teamId, string teamName, int projectId, string projectName)>> GetProjectTeamLinksAsync(int? teamId, int? projectId);
+        Task<IEnumerable<(int teamId, string teamName, int userId, string userName)>> GetUserTeamLinksAsync(int? teamId, int? userId);
+        Task DeleteProjectFromTeam(int teamId, int projectId);
     }
 }
