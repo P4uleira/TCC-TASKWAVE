@@ -121,8 +121,11 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AcessoAdmin", policy =>
-        policy.RequireClaim("access", "Acesso 1"));
+    options.AddPolicy("CriarTarefas", policy =>
+        policy.RequireClaim("access", "ADMINISTRADOR", "GESTOR"));
+
+    options.AddPolicy("VisualizarTarefas", policy =>
+        policy.RequireClaim("access", "USUARIO", "GESTOR", "ADMINISTRADOR"));
 
 });
 
