@@ -1,0 +1,152 @@
+﻿@page "/Relatorios"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+@using TASKWAVE.DOMAIN.ENTITY
+@inject IJSRuntime JSRuntime
+
+<div class="sidebar">
+    <NavMenuOptions Options="@Options" />
+</div>
+
+<h3 class="mb-4" style="padding-top: 4dvh; padding-left: 4dvw;">📊 Relatório de Tarefas</h3>
+
+@if (tarefas == null)
+{
+    <p>Carregando dados...</p>
+}
+else if (!tarefas.Any())
+{
+    <p>Nenhuma tarefa encontrada.</p>
+}
+else
+{
+    <div style="overflow-x: hidden;">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div style="max-width: 500px; max-height: 500px; margin-left:4dvw; margin-top:4dvh;">
+                    <canvas id="graficoTarefas"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6 position-relative" style="max-width: 100%; padding-right: 6dvw;">
+                <div class="d-flex flex-column gap-3 me-2">
+                    <div class="card bg-primary text-white p-3">
+                        <h5>Tempo Médio de Resolução</h5>
+                        <h3>
+                            @(tempoMedio.HasValue
+                                                    ? $"{(int)tempoMedio.Value.TotalHours}h {tempoMedio.Value.Minutes}min"
+                                                    : "-")
+                    </h3>
+                </div>
+                <div class="card bg-success text-white p-3">
+                    <h5>Total de Tarefas</h5>
+                    <h3>@totalTarefas</h3>
+                </div>
+            </div>
+
+                <div class="position-absolute bottom-0" style="left: 0; min-width: 100%; max-width: 100%; padding-right: 6dvw !important;">
+                    <div class="card bg-dark text-white p-3 me-2">
+                        <h5 class="card-title">Resumo por Projeto</h5>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            <table class="table table-bordered table-sm text-white mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Projeto</th>
+                                        <th>Concluído</th>
+                                        <th>Em Andamento</th>
+                                        <th>Em Atraso</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in resumoUsuarios)
+                                    {
+                                        <tr>
+                                            <td>@item.Projeto</td>
+                                            <td>@item.Concluidas</td>
+                                            <td>@item.EmAndamento</td>
+                                            <td>@item.EmAtraso</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    List<HyperLink> Options = new List<HyperLink>
+      {
+          new HyperLink("/TarefaCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+          new HyperLink("/Historico", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
+          new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
+          new HyperLink("/Calendario", "Calendario", "Calendario", HyperLink.TypeOfIcon.Calendar),
+          new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
+      };
+
+    private List<TarefaResponse> tarefas;
+    private int totalTarefas;
+    private TimeSpan? tempoMedio;
+    private List<ResumoProjeto> resumoUsuarios = new();
+
+    private class ResumoProjeto
+    {
+        public string Projeto { get; set; }
+        public int Concluidas { get; set; }
+        public int EmAndamento { get; set; }
+        public int EmAtraso { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        tarefas = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa") ?? new();
+        totalTarefas = tarefas.Count;
+
+        tempoMedio = null;
+
+        resumoUsuarios = tarefas
+            .GroupBy(t => t.projectId.ToString())
+            .Select(g => new ResumoProjeto
+            {
+                Projeto = $"Projeto {g.Key}",
+                Concluidas = g.Count(t => t.taskStatus.ToString() == "Concluida"),
+                EmAndamento = g.Count(t => t.taskStatus.ToString() == "EmAndamento"),
+                EmAtraso = g.Count(t => t.taskStatus.ToString() == "EmAtraso"),
+            }).ToList();
+    }
+
+    private bool jsExecutado = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!jsExecutado && tarefas != null && tarefas.Any())
+        {
+            jsExecutado = true;
+
+            await Task.Delay(300);
+
+            var labels = new[] { "Concluído", "Em Andamento", "Em Atraso" };
+            var dados = new[]
+            {
+            tarefas.Count(t => t.taskStatus.ToString() == "Concluida"),
+            tarefas.Count(t => t.taskStatus.ToString() == "EmAndamento"),
+            tarefas.Count(t => t.taskStatus.ToString() == "EmAtraso"),
+        };
+
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("gerarGraficoPizza", labels, dados);
+            }
+            catch (JSException ex)
+            {
+                Console.WriteLine($"Erro ao chamar JS: {ex.Message}");
+            }          
+        }
+    }
+}
