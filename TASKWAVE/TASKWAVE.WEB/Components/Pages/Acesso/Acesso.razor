@@ -4,152 +4,163 @@
 @layout NavMenu
 @inject HttpClient Http
 
-<div class="sidebar">
-	<NavMenuOptions Options="@Options" />
+<div class="sidebar" style="width:270px;">
+    <NavMenuOptions Options="@Options" />
 </div>
 
 <div class="m-md-5">
-	<h2>Meus Acessos</h2>
-	<h4 class="mt-3">Gerenciar Acessos</h4>		
+    <h2  class="mb-2">Meus Acessos</h2>
+    <h4 class="mb-4 text-muted">Gerenciar Acessos</h4>
 
-	@foreach (var access in accessList)
-	{
+    <div class="d-flex align-items-center gap-3 mt-lg-4 mb-2">
+        <label class="text-start" style="width: 45%;">Nome do Acesso</label>
+        <label class="text-start" style="width: 45%;">Descrição do Acesso</label>
+        <label class="text-center" style="width: 10%;">Editar</label>
+    </div>
 
-		<div class="mb-3">
-			<label>@access.accessName</label>
-			<label>@access.accessDescription</label>
-			<button class="btn btn-sm btn-primary" @onclick="() => OpenEditModal(access)">Editar</button>
-		</div>
-
-	}
+    @foreach (var access in accessList)
+    {
+        <div class="mb-3 d-flex align-items-center gap-3">
+            <label class="fieldShow" style="width: 45%;">@access.accessName</label>
+            <label class="fieldShow" style="width: 45%;">@access.accessDescription</label>
+            <div style="width: 10%; display: flex; justify-content: center;">
+                <button class="btn btn-sm d-flex align-items-center justify-content-center mt-0" style="height: 38px; background-color:#0D1321"  @onclick="() => OpenEditModal(access)">
+                    <img style="width: 20px;" src="images/Icons/Pencil.png" alt="Editar" />
+                </button>
+            </div>
+        </div>
+    }
 </div>
+
 
 @if (selectedAccess != null)
 {
-	<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-		<div class="modal-dialog">
-			<div class="modal-content text-black">
-				<div class="modal-header">
-					<h5 class="modal-title">Editar Acesso</h5>
-					<button type="button" class="btn-close" @onclick="CloseModal"></button>
-				</div>
-				<div class="modal-body">
-					<EditForm Model="@selectedAccess" OnValidSubmit="UpdateAccess">
-						<DataAnnotationsValidator />
-						<ValidationSummary />
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content text-black" style="height: 535px;">
+                <div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
+                    <h5 class="modal-title">Editar Acesso</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
 
-						<div class="mb-3">
-							<label>Nome</label>
-							<InputText class="form-control" @bind-Value="selectedAccess.accessName" />
-						</div>
+                <div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
+                    <EditForm Model="@selectedAccess" OnValidSubmit="UpdateAccess">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
 
-						<div class="mb-3">
-							<label>Descrição</label>
-							<InputText class="form-control" @bind-Value="selectedAccess.accessDescription" />
-						</div>
+                        <div class="mb-3">
+                            <label class="mb-3" for="AccessName">Nome do Acesso</label>
+                            <InputText id="AccessName" class="form-control text-white" style="background-color: #333339; height: 56px;font-size:1rem !important;" @bind-Value="selectedAccess.accessName" />
+                        </div>
 
+                        <div class="mb-3">
+                            <label class="mb-3" for="AccessDescription">Descrição do Acesso</label>
+                            <InputText id="AccessDescription" class="form-control text-white" style="background-color: #333339; height: 56px;" @bind-Value="selectedAccess.accessDescription" />
+                        </div>
 
-						<button type="button" class="btn btn-success" @onclick="() => DeleteAccess(selectedAccess.accessId)">Excluir Acesso</button>
-						<button type="submit" class="btn btn-success">Salvar</button>
-						<button type="button" class="btn btn-secondary ms-2" @onclick="CloseModal">Cancelar</button>
-					</EditForm>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <div class="d-flex justify-content-center gap-5 mt-5">
+                            <button type="submit" class="btn btn-success rounded-pill w-25">Salvar Alterações</button>
+                            <button type="button" class="btn btn-danger rounded-pill w-25" @onclick="() => DeleteAccess(selectedAccess.accessId)">Excluir Acesso</button>
+                            <button type="button" class="btn btn-secondary rounded-pill w-25" @onclick="CloseModal">Cancelar</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
 
-	List<HyperLink> Options = new List<HyperLink>
-	{
-		new HyperLink("/AcessoCreate", "Criar Acesso", "Criar Acesso", HyperLink.TypeOfIcon.Add),
-		new HyperLink("/Acesso", "Gerenciar Acessos", "Gerenciar Acessos", HyperLink.TypeOfIcon.List)
-	};
+    List<HyperLink> Options = new List<HyperLink>
+    {
+        new HyperLink("/AcessoCreate", "Criar Acesso", "Criar Acesso", HyperLink.TypeOfIcon.Add),
+        new HyperLink("/Acesso", "Gerenciar Acessos", "Gerenciar Acessos", HyperLink.TypeOfIcon.List)
+    };
 
-	private List<AcessoResponse> accessList = new();
-	private string mensageResponse;
-	private AcessoRequest selectedAccess;
+    private List<AcessoResponse> accessList = new();
+    private string mensageResponse;
+    private AcessoRequest selectedAccess;
 
-	protected override async Task OnInitializedAsync()
-	{
-		await GetAllAccess();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllAccess();
+    }
 
-	#region CRUD
-	private async Task GetAllAccess()
-	{
-		try
-		{
-			accessList = await Http.GetFromJsonAsync<List<AcessoResponse>>("api/Acesso");
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro ao carregar Acessos: {ex.Message}";
-		}
-	}
-
-	
-	private async Task DeleteAccess(int accessId)
-	{
-		try
-		{
-			var response = await Http.DeleteAsync($"api/Acesso/{accessId}");
-
-			if (response.IsSuccessStatusCode)
-			{
-				await GetAllAccess();
-				CloseModal();
-			}
-			else
-			{
-				mensageResponse = "Erro ao excluir Acesso.";
-			}
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro: {ex.Message}";
-		}
-	}
-	
-	private async Task UpdateAccess()
-	{
-		try
-		{
-			var response = await Http.PutAsJsonAsync($"api/Acesso/{selectedAccess.accessId}", selectedAccess);
-			if (response.IsSuccessStatusCode)
-			{
-				await GetAllAccess();
-				CloseModal();
-			}
-			else
-			{
-				mensageResponse = "Erro ao atualizar Acesso.";
-			}
-		}
-		catch (Exception ex)
-		{
-			mensageResponse = $"Erro: {ex.Message}";
-		}
-	}
-	#endregion
+    #region CRUD
+    private async Task GetAllAccess()
+    {
+        try
+        {
+            accessList = await Http.GetFromJsonAsync<List<AcessoResponse>>("api/Acesso");
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro ao carregar Acessos: {ex.Message}";
+        }
+    }
 
 
-	#region Modal
-	private void OpenEditModal(AcessoResponse access)
-	{
-		selectedAccess = new AcessoRequest
-		{
-			accessId = access.accessId,
-			accessName = access.accessName,
-			accessDescription = access.accessDescription,
-			accessCreationDate = access.accessCreationDate
-		};
-	}
+    private async Task DeleteAccess(int accessId)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"api/Acesso/{accessId}");
 
-	private void CloseModal()
-	{
-		selectedAccess = null;
-	}
-	#endregion
+            if (response.IsSuccessStatusCode)
+            {
+                await GetAllAccess();
+                CloseModal();
+            }
+            else
+            {
+                mensageResponse = "Erro ao excluir Acesso.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro: {ex.Message}";
+        }
+    }
+
+    private async Task UpdateAccess()
+    {
+        try
+        {
+            var response = await Http.PutAsJsonAsync($"api/Acesso/{selectedAccess.accessId}", selectedAccess);
+            if (response.IsSuccessStatusCode)
+            {
+                await GetAllAccess();
+                CloseModal();
+            }
+            else
+            {
+                mensageResponse = "Erro ao atualizar Acesso.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro: {ex.Message}";
+        }
+    }
+    #endregion
+
+
+    #region Modal
+    private void OpenEditModal(AcessoResponse access)
+    {
+        selectedAccess = new AcessoRequest
+        {
+            accessId = access.accessId,
+            accessName = access.accessName,
+            accessDescription = access.accessDescription,
+            accessCreationDate = access.accessCreationDate
+        };
+    }
+
+    private void CloseModal()
+    {
+        selectedAccess = null;
+    }
+    #endregion
 }
