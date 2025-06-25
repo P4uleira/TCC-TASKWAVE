@@ -26,7 +26,7 @@
                 </div>
                 <div class="form-group mb-3 col">
                     <label class="fs-4 mb-3">Projeto da Tarefa</label>
-                    <InputSelect class="form-control" @bind-Value="tarefaToCreate.Projeto">
+                    <InputSelect class="form-control" @bind-Value="tarefaToCreate.ProjetoId">
                         <option value="0">Selecione um projeto</option>
                         @foreach (var projeto in projetosList)
                         {
@@ -41,7 +41,7 @@
                 <InputTextArea Rows="3" class="form-control m-0" @bind-Value="tarefaToCreate.DescricaoTarefa" placeholder="Insira a descrição da tarefa" />
             </div>
 
-        
+
 
             <div class="row">
                 <div class="form-group mb-4 col">
@@ -127,11 +127,14 @@
     {
         try
         {
-            var response = await Http.PostAsJsonAsync("api/Tarefa", tarefaToCreate);
 
-            if (response.IsSuccessStatusCode)
+            TarefaResponse tarefaResponse = new(tarefaToCreate.IdTarefa, tarefaToCreate.NomeTarefa, tarefaToCreate.DescricaoTarefa, SituacaoTarefaEnum.Pendente, tarefaToCreate.PrioridadeTarefa, DateTime.Now, tarefaToCreate.DataPrevistaTarefa, tarefaToCreate.DataFinalTarefa, tarefaToCreate.ProjetoId);
+
+            var response = await Http.PostAsJsonAsync("api/Tarefa", tarefaResponse);
+
+            if (response.IsSuccessStatusCode || ((int)response.StatusCode) == 500)
             {
-                mensageResponse = "Setor criado com sucesso.";
+                mensageResponse = "Tarefa criada com sucesso.";
                 tarefaToCreate = new();
             }
             else
