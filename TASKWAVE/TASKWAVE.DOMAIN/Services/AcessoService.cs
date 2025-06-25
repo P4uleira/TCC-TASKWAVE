@@ -41,5 +41,15 @@ namespace TASKWAVE.DOMAIN.Services
         {
             return await _acessoRepository.GetByIdAsync(id);
         }
+
+        public async Task<IEnumerable<(int accessId, string accessName, int userId, string userName)>> GetAccessUserLinksAsync(int? accessId, int? userId)
+        {
+            return await _acessoRepository.GetAccessUserLinksAsync(accessId, userId);
+        }
+
+        public async Task DeleteAccessInUser(int accessId, int userId)
+        {
+            await _acessoRepository.DeleteAccessInUser(accessId, userId);
+        }
     }
 }

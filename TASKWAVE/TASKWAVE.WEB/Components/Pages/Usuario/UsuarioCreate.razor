@@ -1,0 +1,190 @@
+﻿@page "/UsuarioCreate"
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<PageTitle>Criar Usuario</PageTitle>
+<div class="sidebar">
+    <NavMenuOptions Options="@Options" />
+</div>
+
+<main>
+    <section>
+        <div class="m-md-5">
+            <div>
+                <h2>Usuário</h2>
+                <h4 class="text-muted mt-3">Criar Usuário</h4>
+            </div>
+
+            <EditForm Model="@userToCreate" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-warning" />
+
+                <div class="row mb-3 mt-lg-3">
+                    <div class="w-25 col">
+                        <label for="userName" class="mb-3">Nome do usuário</label>
+                        <InputText id="userName" class="form-control" @bind-Value="userToCreate.NomeUsuario" placeholder="Insira o nome do usuário" />
+                    </div>
+                    <div class="w-25 col">
+                        <label for="userEmail" class="mb-3">Email do usuário</label>
+                        <InputText id="userEmail" type="email" class="form-control" @bind-Value="userToCreate.EmailUsuario" placeholder="Insira o e-mail do usuário" />
+                    </div>
+                </div>
+
+                <div class="row mb-3 mt-lg-4">
+                    <div class="col-3">
+                        <label for="userPassword" class="mb-3">Insira a senha do usuário</label>
+                        <InputText id="userPassword" type="password" class="form-control" @bind-Value="userToCreate.SenhaUsuario" placeholder="Insira a senha do usuário" />
+                    </div>
+                    <div class="col-3">
+                        <label for="userPassword" class="mb-3">Confirme a senha</label>
+                        <InputText id="userPassword" type="password" class="form-control" @bind-Value="passwordConfirmation" placeholder="Confirme a senha do usuário" />
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-lg-4 ">
+                    <label for="btnInsertUserEquip" class="mb-3 form-label">Deseja inserir o usuário a uma equipe ?</label><br>                    
+                    <Switch @bind-Value="showEquipeDropDown" />
+                </div>
+
+                @if (showEquipeDropDown)
+                {
+                    <div class="form-group mb-4 w-50">
+                        <label class="mb-3">Selecione uma equipe</label>
+                        <InputSelect class="form-control" @bind-Value="selectedEquipe">
+                            <option value="0">Selecione a equipe que o usuário irá pertencer</option>
+                            @foreach (var equipe in equipes)
+                            {
+                                <option value="@equipe.IdEquipe">@equipe.NomeEquipe</option>
+                            }
+                        </InputSelect>
+                    </div>
+                }
+
+                <div class="d-flex w-100 justify-content-center">
+                    <button type="submit" style="background-color: #748CAB" class="btn text-white w-25 rounded-pill">
+                        Criar Usuário
+                    </button>
+                </div>
+            </EditForm>
+
+            @if (!string.IsNullOrEmpty(mensageResponse))
+            {
+                <div class="mt-3 alert alert-info">@mensageResponse</div>
+            }
+        </div>
+    </section>
+</main>
+
+@code {
+    List<HyperLink> Options = new List<HyperLink>
+	{
+		new HyperLink("/UsuarioCreate", "Criar Usuario", "Criar Usuario", HyperLink.TypeOfIcon.Add),
+		new HyperLink("/UsuarioManage", "Gerenciar Usuario", "Gerenciar Usuario", HyperLink.TypeOfIcon.List)
+	};
+
+    private Usuario userToCreate = new Usuario();
+    private List<Equipe> equipes = new();
+    private int selectedEquipe = 0;
+    private string passwordConfirmation;
+    private string mensageResponse;
+
+    private bool showEquipeDropDown = false;
+    private string labelShowDD = "Sim";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllEquipes();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (await ValidateUser())
+        {
+            try
+            {
+                HttpResponseMessage response;
+                if (showEquipeDropDown && selectedEquipe > 0)
+                {
+                    response = await Http.PostAsJsonAsync($"api/Usuario/AddUserInEquip?teamId={selectedEquipe}", userToCreate);
+                }
+                else {
+
+                    response = await Http.PostAsJsonAsync("api/Usuario", userToCreate);
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    mensageResponse = "Usuário criado com sucesso!";
+                    userToCreate = new Usuario();
+                    passwordConfirmation = string.Empty;
+                    showEquipeDropDown = false;
+                    selectedEquipe = 0;
+				}
+				else
+				{
+					mensageResponse = "Erro ao criar usuário: " + response.ReasonPhrase;
+				}
+			}
+			catch (HttpRequestException ex)
+			{
+				mensageResponse = "Erro de conexão: " + ex.Message;
+			}
+		}
+    }  
+
+    private async Task<bool> ValidateUser()
+    {
+        if (string.IsNullOrEmpty(userToCreate.NomeUsuario) || string.IsNullOrEmpty(userToCreate.EmailUsuario) || string.IsNullOrEmpty(userToCreate.SenhaUsuario))
+        {
+            mensageResponse = "Preencha todos os campos obrigatórios.";
+            return false;
+        }
+        else if (userToCreate.SenhaUsuario != passwordConfirmation)
+        {
+            mensageResponse = "As senhas não coincidem";
+            return false;
+        }      
+        else
+        {           
+            try
+            {                
+                List<UsuarioResponse> hasUser = await Http.GetFromJsonAsync<List<UsuarioResponse>>($"api/Usuario");
+                string emailAlredyExist = hasUser.FirstOrDefault(a => a.userEmail == userToCreate.EmailUsuario)?.userEmail ?? null;
+			    if (emailAlredyExist != null)
+			    {
+				    mensageResponse = "Já existe um usuário com esse e-mail.";
+				    return false;
+			    }
+            }
+            catch (HttpProtocolException ex)
+            {
+				mensageResponse = ex.Message;
+            }
+        }
+
+        return true;
+	}
+
+    public async Task GetAllEquipes()
+    {
+        try {
+
+            List<EquipeResponse> equipes = await Http.GetFromJsonAsync<List<EquipeResponse>>("api/Equipe");
+            if (equipes != null)
+            {
+                foreach (var equipe in equipes)
+                {
+                    Equipe eq = new(equipe.teamName, equipe.teamDescription, equipe.sectorId);
+                    eq.IdEquipe = equipe.teamId;
+					this.equipes.Add(eq);
+                }
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            mensageResponse = ex.Message;
+        }
+    }
+}

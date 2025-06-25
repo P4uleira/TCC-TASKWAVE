@@ -1,0 +1,368 @@
+﻿@page "/UsuarioManage"
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<PageTitle>Criar Usuario</PageTitle>
+<div class="sidebar">
+	<NavMenuOptions Options="@Options" />
+</div>
+
+<div class="m-md-5">
+	<h2>Usuários</h2>
+	<h4 class="mt-3 text-muted">Gerenciar Usuários</h4>
+
+	<div class="d-flex mt-lg-3">
+		<p style="width: 30%">Nome</p>
+		<p style="width: 30%">Email</p>		
+		<p style="width: 30%">Equipes</p>
+		<p style="width: 10%">Editar</p>
+	</div>
+	@foreach (var usuario in usuarioListinUse)
+	{
+		<div class="mb-3 d-flex gap-3">
+			<span class="fieldShow1">@usuario.NomeUsuario</span>
+			<span class="fieldShow1">@usuario.EmailUsuario</span>			
+			@if (usuario.Equipes != null)
+			{
+				<span class="fieldShow1">@string.Join(", ", usuario.Equipes.Select(e => e.NomeEquipe))</span>
+			}
+			else
+			{
+				<span class="fieldShow1">O usuário não está em uma equipe</span>
+			}
+			<div style="width: 10%">
+				<button style="width: 55px; padding:5px; background-color: #0D1321" class="btn btn-sm mt-0" @onclick="() => OpenEditModal(usuario)"><img style="width: 20px" src="images/Icons/Pencil.png" alt="Alternate Text" /></button>
+			</div>
+		</div>
+	}
+
+	@if (selectedUsuario != null)
+	{
+		<div class="modal fade show d-block" tabindex="-1">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content text-black">
+					<div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
+						<h5 class="modal-title">Editando: @selectedUsuario.NomeUsuario</h5>
+						<button type="button" class="btn-close" @onclick="CloseModal"></button>
+					</div>
+					<div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
+						<EditForm Model="@selectedUsuario" OnValidSubmit="UpdateUsuario">
+							<DataAnnotationsValidator />
+							<ValidationSummary />
+
+							<div class="mb-3">
+								<label class="mb-3" for="UsuarioNome">Nome do Usuario</label>
+								<InputText id="UsuarioNome" style="background-color: #333339" class="form-control text-white" @bind-Value="selectedUsuario.NomeUsuario" />
+							</div>
+
+
+							<div class="mb-3">
+								<label class="mb-3" for="UsuarioEmail">Email do Usuario</label>
+								<InputText typeof="email" id="UsuarioEmail" style="background-color: #333339" Rows="3" class="form-control text-white" @bind-Value="selectedUsuario.EmailUsuario" />
+							</div>
+
+							<div class="mb-3">
+								<label class="mb-3" for="UsuarioSenha">Senha do Usuario</label>
+								<InputText placeholder="********" id="UsuarioSenha" style="background-color: #333339" class="form-control text-white" @bind-Value="PasswordChange" />
+							</div>
+
+							<div class="mb-3">
+								<label class="mb-3" for="AmbienteList">Equipe(s) do Usuário: </label>
+								<p>@string.Join(", ", equipesSelected.Select(e => e.NomeEquipe))</p>
+								<select class="form-control" @bind="idEquipeSelecionada" @bind:after="OnSelecionarItens">
+									<option value="0">Selecione uma equipe nova para adicionar ou uma já adicionada para remover</option>
+									@foreach (var item in equipesList)
+									{
+										<option value="@item.IdEquipe">@item.NomeEquipe</option>
+									}
+								</select>
+							</div>
+
+							<div class="d-flex justify-content-center gap-5">
+								<button type="submit" class="btn btn-success rounded-pill w-25">Salvar Alterações</button>
+								<button type="button" class="btn btn-danger rounded-pill w-25" @onclick="() => OpenDeleteModal(selectedUsuario)">Excluir Usuário</button>
+								<button type="button" class="btn btn-secondary rounded-pill w-25" @onclick="CloseModal">Cancelar</button>
+							</div>
+						</EditForm>
+						@if (!string.IsNullOrEmpty(mensageResponse))
+						{
+							<div class="mt-3 alert alert-info">@mensageResponse</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>		
+	}
+	@if (selectedUsuarioToDelete != null)
+	{
+		<div class="modal fade show d-block" tabindex="-1">
+			<div id="DeleteUserModal" aria-hidden="true" aria-labelledby="DeleteUserModal" class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content text-black">
+					<div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
+						<h5 class="modal-title">Remover Usuário: @selectedUsuarioToDelete.NomeUsuario</h5>
+						<button type="button" class="btn-close" @onclick="CloseModal"></button>
+					</div>
+					<div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
+						<EditForm Model="@selectedUsuarioToDelete" OnSubmit="DeleteUsuario">
+							<div class="w-100 text-center">
+								<div class="my-lg-5">
+									<h3>Deseja mesmo remover o(a) @selectedUsuarioToDelete.NomeUsuario ?</h3>
+									<h3>O procedimento é irreversível!</h3>
+								</div>
+
+								<div class="d-flex justify-content-center gap-5">
+									<button type="submit" class="btn btn-danger rounded-pill w-25">Excluir Usuário</button>
+									<button type="button" class="btn btn-secondary rounded-pill w-25" @onclick="CloseDeleteModal">Cancelar</button>
+								</div>
+							</div>
+						</EditForm>
+						@if (!string.IsNullOrEmpty(mensageResponse))
+						{
+							<div class="mt-3 alert alert-info">@mensageResponse</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+</div>
+
+
+
+
+@code {
+	List<HyperLink> Options = new List<HyperLink>
+	{
+		new HyperLink("/UsuarioCreate", "Criar Usuario", "Criar Usuario", HyperLink.TypeOfIcon.Add),
+		new HyperLink("/UsuarioManage", "Gerenciar Usuario", "Gerenciar Usuario", HyperLink.TypeOfIcon.List)
+	};
+
+	private List<UsuarioResponse> usuariosList = new();
+	private List<Usuario> usuarioListinUse = new();
+	private Usuario selectedUsuario;
+	private Usuario selectedUsuarioToDelete;
+	private string PasswordChange = string.Empty;
+
+
+	private List<Equipe> equipesList = new();
+	private List<Equipe> equipesSelected = new();
+	private int idEquipeSelecionada = 0;
+
+	private string mensageResponse;
+
+	protected override async Task OnInitializedAsync()	{
+
+		await GetAllUsers();
+		await GetAllEquipes();
+	}
+
+	public async Task GetAllUsers()
+	{
+		usuarioListinUse.Clear();
+		usuariosList = await Http.GetFromJsonAsync<List<UsuarioResponse>>("api/Usuario");
+
+		if (usuariosList == null || !usuariosList.Any())
+			usuariosList = new List<UsuarioResponse>();
+		else
+		{
+			foreach (var usuario in usuariosList)
+			{
+				Usuario us = new Usuario
+				{
+					IdUsuario = usuario.userID,
+					NomeUsuario = usuario.userName,
+					EmailUsuario = usuario.userEmail,
+					SenhaUsuario = usuario.userPassword,
+					DataCriacaoUsuario = usuario.userCreationDate
+				};
+				us.Equipes = default!;
+				us.Equipes = await GetEquipesByUser(usuario);
+				usuarioListinUse.Add(us);
+			}
+		}
+	}
+
+	public async Task GetAllEquipes()
+	{
+		try
+		{
+			List<EquipeResponse> equipeResponse = new();
+			equipeResponse = await Http.GetFromJsonAsync<List<EquipeResponse>>("api/Equipe");
+			if (equipeResponse is not null)
+			{
+				foreach (var eq in equipeResponse)
+				{
+					Equipe equipe = new Equipe
+					{
+						IdEquipe = eq.teamId,
+						NomeEquipe = eq.teamName,
+						DescricaoEquipe = eq.teamDescription						
+					};
+					equipesList.Add(equipe);
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao carregar equipes: {ex.Message}";
+		}
+	}
+
+	public async Task<ICollection<Equipe>> GetEquipesByUser(UsuarioResponse usuario)
+	{
+		List<Equipe> eqList = await Http.GetFromJsonAsync<List<Equipe>>($"api/Usuario/{usuario.userID}/Equipes");
+
+		if (eqList == null || !eqList.Any())
+			return null;
+
+		ICollection<Equipe> equipes = new List<Equipe>();
+		equipes = eqList.ToList();
+
+		return equipes;
+	}
+
+	private async Task DeleteUsuario()
+	{
+		try
+		{
+			var response = await Http.DeleteAsync($"api/Usuario/{selectedUsuarioToDelete.IdUsuario}");
+
+			if (response.IsSuccessStatusCode)
+			{
+				await GetAllUsers();
+				CloseDeleteModal();
+				mensageResponse = "Usuário excluído com sucesso!.";
+			}
+			else
+			{
+				mensageResponse = "Erro ao excluir setor.";
+			}
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro: {ex.Message}";
+		}
+	}
+
+	private async Task UpdateUsuario()
+	{
+		try
+		{
+			var equipesOriginais = selectedUsuario.Equipes ?? new List<Equipe>();
+			var novasEquipes = equipesSelected ?? new List<Equipe>();
+
+			// Comparar IDs
+			var idsOriginais = equipesOriginais.Select(e => e.IdEquipe).ToList();
+			var idsNovos = novasEquipes.Select(e => e.IdEquipe).ToList();
+
+			var idsParaAdicionar = idsNovos.Except(idsOriginais).ToList();
+			var idsParaRemover = idsOriginais.Except(idsNovos).ToList();
+
+			// Adicionar usuário às novas equipes
+			foreach (var idEquipe in idsParaAdicionar)
+			{
+				await Http.PostAsync($"/api/Equipe/AddUserToTeam/{idEquipe}/{selectedUsuario.IdUsuario}", null);
+			}
+
+			// Remover usuário das equipes que ele saiu
+			foreach (var idEquipe in idsParaRemover)
+			{
+				await Http.DeleteAsync($"/api/Equipe/DeleteUserInTeam/{idEquipe}/{selectedUsuario.IdUsuario}");
+			}
+
+			UsuarioRequest usuarioRequest = new();
+			usuarioRequest.userName = selectedUsuario.NomeUsuario;
+			usuarioRequest.userEmail = selectedUsuario.EmailUsuario;
+			usuarioRequest.userCreationDate = selectedUsuario.DataCriacaoUsuario;
+			if (!String.IsNullOrEmpty(PasswordChange))
+			{
+				usuarioRequest.userPassword = PasswordChange;
+				usuarioRequest.newPassword = true;
+			}
+			else
+			{
+				usuarioRequest.userPassword = selectedUsuario.SenhaUsuario;
+				usuarioRequest.newPassword = false;
+			}		
+
+			var response = await Http.PutAsJsonAsync($"api/Usuario/{selectedUsuario.IdUsuario}", usuarioRequest);
+
+			if (response.IsSuccessStatusCode)
+			{
+				await GetAllUsers();
+				PasswordChange = string.Empty;
+				CloseModal();
+			}
+			else
+			{
+				mensageResponse = "Erro ao atualizar o usuário.";
+			}
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro: {ex.Message}";
+		}
+	}
+
+
+	private async Task OnSelecionarItens()
+	{		
+		var equipe = equipesList.FirstOrDefault(x => x.IdEquipe == idEquipeSelecionada);
+
+		if (equipe == null)
+			return; // Equipe não encontrada na lista original
+
+		var equipeJaAdicionada = equipesSelected.Any(x => x.IdEquipe == idEquipeSelecionada);
+
+		if (equipeJaAdicionada)
+		{
+			// Remove a equipe se já estiver selecionada
+			equipesSelected.RemoveAll(x => x.IdEquipe == idEquipeSelecionada);
+		}
+		else
+		{
+			// Adiciona a equipe se ainda não estiver na lista
+			equipesSelected.Add(equipe);
+		}
+
+		await Task.CompletedTask; // Apenas para manter compatibilidade com async
+	}
+
+	#region Modal
+	private void OpenEditModal(Usuario user)
+	{
+		selectedUsuario = user;
+		equipesSelected.Clear();
+		if (user.Equipes is not null)
+			equipesSelected = user.Equipes.ToList();
+	}
+
+	private void OpenDeleteModal(Usuario user)
+	{
+		selectedUsuarioToDelete = user;
+		CloseModal();
+	}
+
+	private void CloseModal()
+	{
+		selectedUsuario = null;		
+	}
+
+	private void CloseDeleteModal()
+	{
+		selectedUsuarioToDelete = null;
+	}
+	#endregion
+}
+
+<style>
+	.fieldShow1 {	
+		width: 29%;
+		border: 1px solid white;
+		padding: 5px;
+		padding-left: 10px;
+		border-radius: 5px;
+	}
+</style>

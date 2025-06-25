@@ -1,0 +1,125 @@
+﻿@page "/AcessToUser"
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<PageTitle>Acessos para usuários</PageTitle>
+
+<div class="sidebar">
+</div>
+
+<div class="m-md-5">
+	<h2>Acessos para usuários</h2>
+	<h4 class="mt-3 text-muted">Liberar Acessos para usuárioss</h4>
+
+	<div class="d-flex mt-lg-3">
+		<p style="width: 50%">Acesso</p>
+		<p style="width: 50%">Usuário</p>
+	</div>
+
+	<div class="mb-3 d-flex gap-3">
+
+		<select style="background-color: #333339" class="form-select text-white w-50" @bind="selectedAccessId">
+			<option value="">Selecione um acesso</option>
+			@foreach (var access in accessList)
+			{
+				<option value="@access.accessId">@access.accessName</option>
+			}
+		</select>
+		<select style="background-color: #333339" class="form-select text-white w-50" @bind="selectedUserId">
+			<option value="">Selecione um usuário</option>
+			@foreach (var user in userList)
+			{
+				<option value="@user.userID">@user.userName</option>
+			}
+		</select>
+	</div>
+	<div class="d-flex w-100 justify-content-center">
+		<button style="background-color: #748CAB" class="btn text-white w-25 rounded-pill mt-xl-5 " @onclick="AssociateAccessToUser">Vincular Acesso ao Usuário</button>
+	</div>
+	@if (!string.IsNullOrWhiteSpace(mensageResponse))
+	{
+		<div class="alert alert-info mt-3">@mensageResponse</div>
+	}
+</div>
+
+
+@code {
+
+	List<HyperLink> Options = new List<HyperLink>
+	{
+		//new HyperLink("/SetorCreate", "Criar Setor", "Criar Setor", HyperLink.TypeOfIcon.Add),
+		//new HyperLink("/Setor", "Gerenciar Setores", "Gerenciar Setores", HyperLink.TypeOfIcon.List)
+	};
+
+	private List<AcessoResponse> accessList = new();
+	private List<UsuarioResponse> userList = new();
+
+	private int selectedAccessId;
+	private int selectedUserId;
+
+	private string mensageResponse;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await GetAllAccess();
+		await GetAllUsers();
+	}
+
+	#region CRUD
+	private async Task GetAllAccess()
+	{
+		try
+		{
+			accessList = await Http.GetFromJsonAsync<List<AcessoResponse>>("api/Acesso");
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao carregar equipes: {ex.Message}";
+		}
+	}
+
+	private async Task GetAllUsers()
+	{
+		try
+		{
+			userList = await Http.GetFromJsonAsync<List<UsuarioResponse>>("api/Usuario");
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro ao carregar usuários: {ex.Message}";
+		}
+	}
+
+	#endregion
+
+	private async Task AssociateAccessToUser()
+	{
+		if (selectedUserId == null || selectedAccessId == null)
+		{
+			mensageResponse = "Por favor, selecione um acesso e um usuário.";
+			return;
+		}
+
+		try
+		{
+			var response = await Http.PostAsync(
+				$"api/Acesso/AddAccessToUser/{selectedAccessId}/{selectedUserId}", null);
+
+			if (response.IsSuccessStatusCode)
+			{
+				mensageResponse = "Acesso vinculado ao usuário com sucesso!";
+			}
+			else
+			{
+				mensageResponse = "Erro ao vincular: " + await response.Content.ReadAsStringAsync();
+			}
+		}
+		catch (Exception ex)
+		{
+			mensageResponse = $"Erro na requisição: {ex.Message}";
+		}
+	}
+
+}

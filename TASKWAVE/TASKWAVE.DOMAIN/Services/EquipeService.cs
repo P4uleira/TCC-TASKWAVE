@@ -32,6 +32,11 @@ namespace TASKWAVE.DOMAIN.Services
         {
             await _teamRepository.InsertUserToTeam(idUser, idTeam);
         }
+
+        public async Task DeleteUserInTeam(int idUser, int idTeam)
+        {
+            await _teamRepository.DeleteUserInTeam(idUser, idTeam);
+        }
         public async Task DeleteTeam(int idTeam)
         {
             await _teamRepository.DeleteAsync(idTeam);
@@ -47,5 +52,21 @@ namespace TASKWAVE.DOMAIN.Services
             return await _teamRepository.GetByIdAsync(idTeam);
         }
 
+        public async Task<IEnumerable<(int teamId, string teamName, int projectId, string projectName)>> GetProjectTeamLinksAsync(int? teamId, int? projectId)
+        {
+            return await _teamRepository.GetProjectTeamLinksAsync(teamId, projectId);
+        }
+        
+        public async Task<IEnumerable<(int teamId, string teamName, int userId, string userName)>> GetUserTeamLinksAsync(int? teamId, int? userId)
+        {
+            return await _teamRepository.GetUserTeamLinksAsync(teamId, userId);
+        }
+
+        public async Task DeleteProjectFromTeam(int teamId, int projectId)
+        {
+            await _teamRepository.DeleteProjectFromTeam(teamId, projectId);
+        }
+
+        
     }
 }
