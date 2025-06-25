@@ -18,10 +18,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/chart-utils.js"></script>
 
-    <HeadOutlet @rendermode="@InteractiveServer" />
+    <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 </head>
 <body>
-    <Routes />
+    <Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 
     <!-- Scripts finais -->
     <script src="_framework/blazor.web.js"></script>

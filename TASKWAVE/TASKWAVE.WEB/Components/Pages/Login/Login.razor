@@ -1,10 +1,12 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
+@using TASKWAVE.WEB.Authentication
 @rendermode InteractiveServer
 @layout EmptyLayout
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div>
 	<div class="d-flex justify-content-center w-100">
@@ -68,43 +70,21 @@
 
 @code {
 
-	private LoginRequest user = new();
+	private LoginRequest user = new LoginRequest();
 	string messageResponse;
 
 	private async Task Logar()
 	{
-		await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
+		var response = await Http.PostAsJsonAsync("api/Auth", user);
+		var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
-		
-		var loginRequest = new LoginRequest
+		if (response.IsSuccessStatusCode){
+			((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(loginResponse.Token);
+			NavigationManager.NavigateTo("/TarefasManage");
+		}else
 		{
-			Email = user.Email,
-			Senha = user.Senha
-		};
-
-		try
-		{
-			var response = await Http.PostAsJsonAsync("api/Auth", loginRequest);
-
-			if (response.IsSuccessStatusCode)
-			{
-				var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-				NavigationManager.NavigateTo("/TarefasManage");
-				
-			}
-			else
-			{
-				var erro = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-				Console.WriteLine($"Erro: {erro["mensagem"]}");
-
-			}
+			messageResponse = "Login inválido. Verifique email e senha.";
 		}
-		catch (Exception ex)
-		{
-			Console.WriteLine($"Erro ao chamar API: {ex.Message}");
-
-		}
-
 	}
 
 }

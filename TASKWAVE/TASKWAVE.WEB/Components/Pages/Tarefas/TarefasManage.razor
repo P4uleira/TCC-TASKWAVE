@@ -1,16 +1,24 @@
 ﻿@page "/TarefasManage"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
 @using TASKWAVE.WEB.Components.Layout
 @layout NavMenu
 @inject HttpClient Http
 
-<PageTitle>Criar Setor</PageTitle>
+<PageTitle>Criar Tarefa</PageTitle>
 <div class="sidebar">
     <NavMenuOptions Options="@Options" />
 </div>
 
 <div class="m-md-5">
-    <h2>Tarefas</h2>
+    <AuthorizeView>
+        <Authorized>
+            <h2>Puta</h2>
+        </Authorized>
+        <NotAuthorized>
+            <h2>Okay</h2>
+        </NotAuthorized>
+    </AuthorizeView>
 
     <div class="d-flex gap-5 align-items-end mb-3">
         <div style="max-width: 520px" class="w-50 me-2">

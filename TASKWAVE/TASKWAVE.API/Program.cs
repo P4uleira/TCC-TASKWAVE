@@ -19,11 +19,26 @@ builder.Services.AddDbContext<TaskWaveContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
 var Issuer = jwtSettings.Issuer;
 var Audience = jwtSettings.Audience;
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = Issuer,
+        ValidAudience = Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
+
 
 //service inject
 builder.Services.AddScoped<IAmbienteRepository, AmbienteRepository>();
@@ -68,29 +83,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = Issuer,
-        ValidAudience = Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(key)
-    };
-});
+
 
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "TaskWave API", Version = "v1" });
 
-    // Adiciona suporte a JWT
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -116,18 +114,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-
 builder.Services.AddAuthorization();
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("CriarTarefas", policy =>
-        policy.RequireClaim("access", "ADMINISTRADOR", "GESTOR"));
-
-    options.AddPolicy("VisualizarTarefas", policy =>
-        policy.RequireClaim("access", "USUARIO", "GESTOR", "ADMINISTRADOR"));
-
-});
 
 var app = builder.Build();
 
@@ -145,6 +132,8 @@ app.UseCors();
 app.UseSwaggerUI();
 app.MapControllers();
 app.UseHttpsRedirection();
+
+
 app.UseAuthentication();
 app.UseAuthorization();
 
