@@ -8,7 +8,6 @@ using TASKWAVE.DTO.Responses;
 
 namespace TASKWAVE.API.Controllers
 {
-    [Authorize(Policy = "AcessoAdmin")]
     [Route("api/[controller]")]
     [ApiController]
     public class UsuarioController : ControllerBase
