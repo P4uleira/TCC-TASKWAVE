@@ -21,7 +21,7 @@ namespace TASKWAVE.API.Controllers
         public async Task<ActionResult<IEnumerable<TarefaResponse>>> GetAll()
         {
             var tasks = await _taskService.GetAllTasks();
-            var response = tasks.Select(task => new TarefaResponse(task.NomeTarefa, task.DescricaoTarefa, task.SituacaoTarefa, task.PrioridadeTarefa, task.DataCriacaoTarefa, task.ProjetoId));
+            var response = tasks.Select(task => new TarefaResponse(task.IdTarefa, task.NomeTarefa, task.DescricaoTarefa, task.SituacaoTarefa, task.PrioridadeTarefa, task.DataCriacaoTarefa, task.DataPrevistaTarefa, task.DataFinalTarefa, task.ProjetoId));
             return Ok(response);
         }
 
@@ -31,7 +31,7 @@ namespace TASKWAVE.API.Controllers
             var task = await _taskService.GetTaskById(idTask);
             if (task == null)
                 return NotFound();
-            return Ok(new TarefaResponse(task.NomeTarefa, task.DescricaoTarefa, task.SituacaoTarefa, task.PrioridadeTarefa, task.DataCriacaoTarefa, task.ProjetoId));
+            return Ok(new TarefaResponse(task.IdTarefa ,task.NomeTarefa, task.DescricaoTarefa, task.SituacaoTarefa, task.PrioridadeTarefa, task.DataCriacaoTarefa, task.DataPrevistaTarefa, task.DataFinalTarefa, task.ProjetoId));
         }
         [HttpPost]
         public async Task<ActionResult> Create(TarefaRequest taskRequest)
@@ -53,6 +53,8 @@ namespace TASKWAVE.API.Controllers
             taskExist.DescricaoTarefa = taskRequest.taskDescription;
             taskExist.SituacaoTarefa = taskRequest.taskStatus;
             taskExist.PrioridadeTarefa = taskRequest.taskPriority;
+            taskExist.DataPrevistaTarefa = taskRequest.taskPlannedDate;
+            taskExist.DataFinalTarefa = taskRequest.taskFinalDate;
 
             await _taskService.UpdateTask(taskExist);
             return NoContent();
