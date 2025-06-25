@@ -36,7 +36,7 @@ namespace TASKWAVE.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(TarefaRequest taskRequest)
         {
-            var task = new Tarefa(taskRequest.taskName, taskRequest.taskDescription, taskRequest.taskStatus, taskRequest.taskPriority, taskRequest.taskCreationDate, taskRequest.projectId);
+            var task = new Tarefa(taskRequest.taskName, taskRequest.taskDescription, taskRequest.taskStatus, taskRequest.taskPriority, taskRequest.taskCreationDate, (DateTime)taskRequest.taskPlannedDate, (DateTime)taskRequest.taskFinalDate, taskRequest.projectId);
             await _taskService.CreateTask(task);
             return CreatedAtAction(nameof(GetById), new { id = task.IdTarefa }, null);
         }
@@ -53,8 +53,8 @@ namespace TASKWAVE.API.Controllers
             taskExist.DescricaoTarefa = taskRequest.taskDescription;
             taskExist.SituacaoTarefa = taskRequest.taskStatus;
             taskExist.PrioridadeTarefa = taskRequest.taskPriority;
-            taskExist.DataPrevistaTarefa = taskRequest.taskPlannedDate;
-            taskExist.DataFinalTarefa = taskRequest.taskFinalDate;
+            taskExist.DataPrevistaTarefa = (DateTime)taskRequest.taskPlannedDate;
+            taskExist.DataFinalTarefa = (DateTime)taskRequest.taskFinalDate;
 
             await _taskService.UpdateTask(taskExist);
             return NoContent();

@@ -101,14 +101,15 @@ else
 }
 
 @code {
-    List<HyperLink> Options = new()
-    {
-          new HyperLink("/TarefaCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
-          new HyperLink("/Historico", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
+    List<HyperLink> Options = new List<HyperLink>
+      {
+          new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+          new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
+          new HyperLink("/historicoTarefas", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
           new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
           new HyperLink("/Calendario", "Calendario", "Calendario", HyperLink.TypeOfIcon.Calendar),
           new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
-    };
+      };
 
     private List<TarefaResponse> todasAsTarefas = new();
     private List<TarefaResponse> taskListFiltrada = new();

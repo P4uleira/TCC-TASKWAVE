@@ -50,7 +50,7 @@ else
                     <div class="card bg-dark text-white p-3 me-2">
                         <h5 class="card-title">Resumo por Projeto</h5>
                         <div style="max-height: 200px; overflow-y: auto;">
-                            <table class="table table-bordered table-sm text-white mb-0">
+                            <table class="table table-bordered table-dark table-sm text-white mb-0">
                                 <thead>
                                     <tr>
                                         <th>Projeto</th>
@@ -83,8 +83,9 @@ else
 
     List<HyperLink> Options = new List<HyperLink>
       {
-          new HyperLink("/TarefaCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
-          new HyperLink("/Historico", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
+          new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+          new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
+          new HyperLink("/historicoTarefas", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
           new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
           new HyperLink("/Calendario", "Calendario", "Calendario", HyperLink.TypeOfIcon.Calendar),
           new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)

@@ -18,11 +18,11 @@
         </div>
         <div class="d-flex gap-3">
             <InputSelect @bind-Value="FiltroStatus" class="form-select bg-dark text-white border-secondary">
-                <option value="">Todos os Status<i class="fa-solid fa-filter"></i></option>
+                <option value="">Todos os Status</option>
                 <option value="EmAndamento">Em andamento</option>
                 <option value="EmAprovacao">Em Aprovação</option>
                 <option value="Pendente">Pendente</option>
-            </InputSelect><i class="fa-solid fa-filter"></i>
+            </InputSelect>
             <InputSelect @bind-Value="FiltroProjetoId" class="form-select bg-dark text-white border-secondary">
                 <option value="">Todos os Projetos</option>
                 @foreach (var id in listaProjetosIds)
@@ -92,14 +92,14 @@
 
 @code {
     List<HyperLink> Options = new List<HyperLink>
-    {
-        new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
-        new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
-        new HyperLink("/HistoricoTarefa", "Histórico", "Histórico", HyperLink.TypeOfIcon.List),
-        new HyperLink("/DesempenhoTarefa", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.List),
-        new HyperLink("/CalendarioTarefa", "Calendário", "Calendário", HyperLink.TypeOfIcon.List),
-        new HyperLink("/RelatorioTarefa", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.List)
-    };
+      {
+          new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+          new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
+          new HyperLink("/historicoTarefas", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
+          new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
+          new HyperLink("/Calendario", "Calendario", "Calendario", HyperLink.TypeOfIcon.Calendar),
+          new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
+      };
 
     private List<TarefaResponse> todasAsTarefas = new();
     private List<TarefaResponse> taskListFiltrada = new();
@@ -119,8 +119,8 @@
 				NomeTarefa = tarefa.taskName,
 				DescricaoTarefa = tarefa.taskDescription,
 				DataCriacaoTarefa = tarefa.taskCreationDate,
-                DataPrevistaTarefa = tarefa.taskPlannedDate,
-                DataFinalTarefa = tarefa.taskFinalDate,
+                DataPrevistaTarefa = (DateTime)tarefa.taskPlannedDate,
+                DataFinalTarefa = (DateTime)tarefa.taskFinalDate,
                 SituacaoTarefa = tarefa.taskStatus,
                 PrioridadeTarefa = tarefa.taskPriority,
 				ProjetoId = tarefa.projectId
