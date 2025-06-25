@@ -4,8 +4,10 @@
     {
         Pendente,
         EmAndamento,
+        EmAprovacao,
         Concluida,
         EmAprovacao,
-        Cancelada
+        Cancelada,
+        EmAtraso
     }
 }
