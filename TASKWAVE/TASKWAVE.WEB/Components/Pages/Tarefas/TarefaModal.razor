@@ -1,0 +1,150 @@
+﻿@if (IsVisible)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content bg-dark text-white p-4 rounded">
+                <div class="d-flex justify-content-between">
+                    <h5 class="modal-title">@Tarefa?.NomeTarefa</h5>
+                    <button class="btn btn-sm btn-outline-light" @onclick="Fechar">X</button>
+                </div>
+
+                <hr />
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>Situação da Tarefa</label>
+                        <InputSelect class="form-control" @bind-Value="Tarefa.SituacaoTarefa" >
+                            @foreach (var situacao in Enum.GetValues(typeof(SituacaoTarefaEnum)))
+                            {
+                                <option value="@situacao">@situacao</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col">
+                        <label>Prioridade da Tarefa</label>
+                        <InputSelect class="form-control" @bind-Value="Tarefa.PrioridadeTarefa">
+                            @foreach (var prioridade in Enum.GetValues(typeof(PrioridadeTarefaEnum)))
+                            {
+                                <option value="@prioridade">@prioridade</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col">
+                        <label>Data Criação</label>
+                        <InputDate  class="form-control" @bind-Value="Tarefa.DataCriacaoTarefa" disabled />
+                    </div>
+                    <div class="col">
+                        <label>Data Prevista</label>
+                        <InputDate class="form-control" @bind-Value="Tarefa.DataPrevistaTarefa" />
+                    </div>
+                    <div class="col">
+                        <label>Data Final</label>
+                        <InputDate  class="form-control" @bind-Value="Tarefa.DataFinalTarefa" />
+                    </div>
+                    <div class="col">
+                        <button class="btn-success" @onclick="AtualizarTarefa">Atualizar</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição da Tarefa</label>
+                    <p>@Tarefa?.DescricaoTarefa</p>
+                </div>
+
+                <label>Atualizações</label>
+                <div class="form-control bg-secondary text-white mb-3"
+                style="min-height: 120px; max-height: 300px; overflow-y: auto; border-radius: 0.5rem; padding: 0.75rem;">
+                    @if (Mensagens != null && Mensagens.Any())
+                    {
+                        @foreach (var msg in Mensagens)
+                        {
+                            <div class="mb-3">
+                                @msg.messageSentDate.ToString("g")<br />
+                                <small class="text-white">@msg.messageContent</small>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>Sem mensagens ainda.</p>
+                    }
+                </div>
+
+                <label>Escreva um comentário/atualização:</label>
+                <textarea class="form-control mb-3" rows="3" @bind="NovaMensagem"></textarea>
+
+                <button class="btn btn-success" @onclick="EnviarMensagem">Enviar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public Tarefa? Tarefa { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    [Inject] public HttpClient Http { get; set; }
+
+    List<MensagemResponse> Mensagens = new();
+    public string NovaMensagem = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Tarefa?.IdTarefa > 0)
+        {
+            try
+            {
+                Mensagens = await Http.GetFromJsonAsync<List<MensagemResponse>>($"/api/Mensagem/Tarefa/{Tarefa.IdTarefa}/Mensagens");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao carregar mensagens: " + ex.Message);
+                Mensagens = new List<MensagemResponse>();
+            }
+        }
+    }
+
+    private async Task EnviarMensagem()
+    {
+        if (!string.IsNullOrWhiteSpace(NovaMensagem))
+        {
+            var nova = new
+            {                
+                messageContent = NovaMensagem,
+                messageSentDate = DateTime.Now,
+                taskId = Tarefa.IdTarefa
+            };
+
+            var response = await Http.PostAsJsonAsync("/api/Mensagem", nova);
+
+            if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            {
+                NovaMensagem = "";
+                Mensagens = await Http.GetFromJsonAsync<List<MensagemResponse>>($"/api/Mensagem/Tarefa/{Tarefa.IdTarefa}/Mensagens");
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task AtualizarTarefa()
+    {
+        if (Tarefa?.IdTarefa > 0)
+        {
+            TarefaRequest tarefaRequest = new(Tarefa.NomeTarefa, Tarefa.DescricaoTarefa, Tarefa.SituacaoTarefa, Tarefa.PrioridadeTarefa, Tarefa.DataCriacaoTarefa, Tarefa.DataPrevistaTarefa, Tarefa.DataFinalTarefa, Tarefa.ProjetoId);
+
+            var response = await Http.PutAsJsonAsync($"/api/Tarefa/{Tarefa.IdTarefa}", tarefaRequest);
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Erro ao atualizar tarefa.");
+            }
+        }
+    }
+
+    private async Task Fechar()
+    {
+        Console.WriteLine("Fechar foi chamado.");
+        await OnClose.InvokeAsync();
+    }
+}

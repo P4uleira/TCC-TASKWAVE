@@ -1,0 +1,265 @@
+﻿@page "/TarefasManage"
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<PageTitle>Criar Setor</PageTitle>
+<div class="sidebar">
+    <NavMenuOptions Options="@Options" />
+</div>
+
+<div class="m-md-5">
+    <h2>Tarefas</h2>
+
+    <div class="d-flex justify-content-between align-items-end mb-3">
+        <div class="flex-grow-1 me-2">
+            <InputText @bind-Value="FiltroNome" class="form-control bg-dark text-white border-secondary" placeholder="Buscar por nome" />
+        </div>
+        <div class="d-flex gap-3">
+            <InputSelect @bind-Value="FiltroStatus" class="form-select bg-dark text-white border-secondary">
+                <option value="">Todos os Status</option>
+                <option value="EmAndamento">Em andamento</option>
+                <option value="EmAprovacao">Em Aprovação</option>
+                <option value="Pendente">Pendente</option>
+            </InputSelect>
+            <InputSelect @bind-Value="FiltroProjetoId" class="form-select bg-dark text-white border-secondary">
+                <option value="">Todos os Projetos</option>
+                @foreach (var id in listaProjetosIds)
+                {
+                    <option value="@id">@mapaProjetoNomes[id]</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(messageResponse))
+    {
+        <div class="alert alert-danger">@messageResponse</div>
+    }
+    else if (taskListFiltrada == null)
+    {
+        <div class="text-center p-4">
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p class="mt-2">Carregando tarefas...</p>
+        </div>
+    }
+    else if (!taskListFiltrada.Any())
+    {
+        <p class="text-white">Nenhuma tarefa encontrada com os filtros aplicados.</p>
+    }
+    else
+    {
+        <table class="table table-dark">
+            <tbody>
+                @foreach (var t in taskListFiltrada.OrderByDescending(t => t.taskPriority).Select((t, index) => new { t, index }))
+                {
+                    <tr>
+                        <td style="width: 50px">
+                            <button class="mt-0" style="background-color: #32373d00" @onclick="@(() => AbrirModal(t.t))">
+                                <img class="botao-rosquinha" width="30px" src="images/Icons/EllipseBotao.png" alt="Clique aqui">
+                            </button>
+                        </td>
+                        <td>@(t.t.idTask)</td>
+                        <td>@t.t.taskName</td>
+                        <td>
+                            <span class="@GetStatusClass(t.t.taskStatus.ToString())">
+                                @GetStatusLabel(@t.t.taskStatus.ToString())
+                            </span>
+                        </td>
+                        <td>
+                            <span>
+                                @t.t.taskPriority.ToString()
+                            </span>
+                        </td>
+                        <td>@(mapaProjetoNomes.ContainsKey(t.t.projectId) ? mapaProjetoNomes[t.t.projectId] : "Projeto desconhecido")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+@if (TarefaSelecionada is not null)
+{    
+    <TarefaModal Tarefa="@TarefaSelecionada"
+    IsVisible="@ExibirModal"
+    OnClose="@AoFecharModal" />
+}
+
+@code {
+    List<HyperLink> Options = new List<HyperLink>
+    {
+        new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+        new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
+        new HyperLink("/HistoricoTarefa", "Histórico", "Histórico", HyperLink.TypeOfIcon.List),
+        new HyperLink("/DesempenhoTarefa", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.List),
+        new HyperLink("/CalendarioTarefa", "Calendário", "Calendário", HyperLink.TypeOfIcon.List),
+        new HyperLink("/RelatorioTarefa", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.List)
+    };
+
+    private List<TarefaResponse> todasAsTarefas = new();
+    private List<TarefaResponse> taskListFiltrada = new();
+    private List<ProjetoRequest> listaProjetos = new();
+    private Dictionary<int, string> mapaProjetoNomes = new();
+    private List<int> listaProjetosIds = new();
+    private string messageResponse = "";
+
+    private bool ExibirModal = false;
+    private Tarefa TarefaSelecionada;
+
+    private async Task AbrirModal(TarefaResponse tarefa)
+    {
+        Tarefa tarefa1 = new Tarefa
+			{
+				IdTarefa = tarefa.idTask,
+				NomeTarefa = tarefa.taskName,
+				DescricaoTarefa = tarefa.taskDescription,
+				DataCriacaoTarefa = tarefa.taskCreationDate,
+                DataPrevistaTarefa = tarefa.taskPlannedDate,
+                DataFinalTarefa = tarefa.taskFinalDate,
+                SituacaoTarefa = tarefa.taskStatus,
+                PrioridadeTarefa = tarefa.taskPriority,
+				ProjetoId = tarefa.projectId
+			};                  
+
+        TarefaSelecionada = tarefa1;
+        ExibirModal = true;
+    }   
+
+    private async Task AoFecharModal()
+    {
+        ExibirModal = false;
+        await CarregarTarefas(); // recarrega a lista
+    }
+
+    private async Task CarregarTarefas()
+    {
+        taskListFiltrada = null;
+        taskListFiltrada = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa");
+    }
+
+    private string _filtroNome = "";
+    private string FiltroNome
+    {
+        get => _filtroNome;
+        set
+        {
+            _filtroNome = value;
+            _ = OnFiltrar();
+        }
+    }
+
+    private string _filtroStatus = "";
+    private string FiltroStatus
+    {
+        get => _filtroStatus;
+        set
+        {
+            _filtroStatus = value;
+            _ = OnFiltrar();
+        }
+    }
+
+    private string _filtroProjetoId = "";
+    private string FiltroProjetoId
+    {
+        get => _filtroProjetoId;
+        set
+        {
+            _filtroProjetoId = value;
+            _ = OnFiltrar();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var tarefas = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa") ?? new();
+            todasAsTarefas = tarefas.Where(t =>
+                RemoveAccents(t.taskStatus.ToString()).Equals("EmAndamento", StringComparison.OrdinalIgnoreCase) ||
+                RemoveAccents(t.taskStatus.ToString()).Equals("Pendente", StringComparison.OrdinalIgnoreCase) ||
+                RemoveAccents(t.taskStatus.ToString()).Equals("EmAprovacao", StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+
+            listaProjetos = await Http.GetFromJsonAsync<List<ProjetoRequest>>("api/Projeto") ?? new();
+            mapaProjetoNomes = listaProjetos.ToDictionary(p => p.projectId, p => p.projectName);
+
+            listaProjetosIds = todasAsTarefas
+                .Select(t => t.projectId)
+                .Where(id => mapaProjetoNomes.ContainsKey(id))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            await OnFiltrar();
+        }
+        catch (Exception ex)
+        {
+            messageResponse = $"Erro ao carregar tarefas ou projetos: {ex.Message}";
+        }
+    }
+
+    private async Task OnFiltrar()
+    {
+        taskListFiltrada = todasAsTarefas.Where(t =>
+            (string.IsNullOrWhiteSpace(FiltroNome) || t.taskName.Contains(FiltroNome, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(FiltroStatus) ||
+             RemoveAccents(t.taskStatus.ToString()).Equals(RemoveAccents(FiltroStatus), StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(FiltroProjetoId) || t.projectId.ToString() == FiltroProjetoId)
+        ).ToList();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string RemoveAccents(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input;
+
+        var normalized = input.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                sb.Append(c);
+        }
+        return sb.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    private string GetStatusClass(string status)
+    {
+        var s = RemoveAccents(status).ToLowerInvariant();
+        return s switch
+        {
+            "cancelada" => "text-purple fw-semibold",
+            "concluida" => "text-danger fw-semibold",
+            "emandamento" => "text-warning fw-semibold",
+            "emaprovacao" => "text-purple fw-semibold",
+            "pendente" => "text-success fw-semibold",
+            _ => "text-secondary"
+        };
+    }
+
+    private string GetStatusLabel(string status)
+    {
+        var s = RemoveAccents(status).ToLowerInvariant();
+        return s switch
+        {
+            "cancelada" => "Cancelada",
+            "concluida" => "Concluída",
+            "emandamento" => "Em Andamento",
+            "emaprovacao" => "Em Aprovação",
+            "pendente" => "Pendente",
+            _ => "Indefinido"
+        };
+    }
+}
+
+<style>
+    .text-purple {
+        color: #b17aff !important;
+    }    
+</style>

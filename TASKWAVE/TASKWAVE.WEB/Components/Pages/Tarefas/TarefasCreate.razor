@@ -1,0 +1,170 @@
+﻿@page "/TarefasCreate"
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<PageTitle>Criar Tarefa</PageTitle>
+<div class="sidebar">
+    <NavMenuOptions Options="@Options" />
+</div>
+
+<div class="m-md-5">
+    <div>
+        <h2>Tarefas</h2>
+        <h4 class="text-muted mt-3">Criar Tarefa</h4>
+    </div>
+
+    <EditForm Model="@tarefaToCreate" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-warning" />
+        <div style="background-color: #1D2D44" class="px-5 py-3 rounded-4">
+            <div class="row mt-lg-3">
+                <div class="form-group mb-3 col">
+                    <label class="fs-4 mb-3">Nome da Tarefa</label>
+                    <InputText class="form-control" @bind-Value="tarefaToCreate.NomeTarefa" placeholder="Insira o nome da tarefa" />
+                </div>
+                <div class="form-group mb-3 col">
+                    <label class="fs-4 mb-3">Projeto da Tarefa</label>
+                    <InputSelect class="form-control" @bind-Value="tarefaToCreate.Projeto">
+                        <option value="0">Selecione um projeto</option>
+                        @foreach (var projeto in projetosList)
+                        {
+                            <option value="@projeto.IdProjeto">@projeto.NomeProjeto</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="fs-4 mb-3">Descrição da Tarefa</label>
+                <InputTextArea Rows="3" class="form-control m-0" @bind-Value="tarefaToCreate.DescricaoTarefa" placeholder="Insira a descrição da tarefa" />
+            </div>
+
+        
+
+            <div class="row">
+                <div class="form-group mb-4 col">
+                    <label class="fs-4 mb-3">Prioridade da Tarefa</label>
+                    <InputSelect class="form-control" @bind-Value="tarefaToCreate.PrioridadeTarefa">
+                        @foreach (var prioridade in Enum.GetValues(typeof(PrioridadeTarefaEnum)))
+                        {
+                            <option value="@prioridade">@prioridade</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="form-group mb-4 col">
+                    <label class="fs-4 mb-3">Conclusão Prevista</label>
+                    <InputDate class="form-control" @bind-Value="tarefaToCreate.DataPrevistaTarefa" />
+                </div>
+                <div class="form-group mb-4 col">
+                    <label class="fs-4 mb-3">Data Final</label>
+                    <InputDate class="form-control" @bind-Value="tarefaToCreate.DataFinalTarefa" />
+                </div>
+            </div>
+
+            <div class="d-flex w-100 mt-lg-5 mb-3 justify-content-center">
+                <button type="submit" style="background-color: #748CAB" class="btn text-white w-25 rounded-pill">
+                    Criar Tarefa
+                </button>
+            </div>
+        </div>
+    </EditForm>
+    @if (!string.IsNullOrEmpty(mensageResponse))
+    {
+        <div class="mt-3 alert alert-info">@mensageResponse</div>
+    }
+</div>
+
+@code {
+    List<HyperLink> Options = new List<HyperLink>
+    {
+        new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+		new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
+        new HyperLink("/HistoricoTarefa", "Histórico", "Histórico", HyperLink.TypeOfIcon.List),
+        new HyperLink("/DesempenhoTarefa", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.List),
+        new HyperLink("/CalendarioTarefa", "Calendário", "Calendário", HyperLink.TypeOfIcon.List),
+        new HyperLink("/RelatorioTarefa", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.List)
+    };
+
+    Tarefa tarefaToCreate = new();
+    List<Projeto> projetosList = new();
+    private string mensageResponse;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProjectAll();
+    }
+
+    private async Task GetProjectAll()
+    {
+        try
+        {
+            List<ProjetoResponse> projetoResponse = new();
+            projetoResponse = await Http.GetFromJsonAsync<List<ProjetoResponse>>("api/Projeto");
+
+            if (projetoResponse is not null)
+            {
+                foreach (var pr in projetoResponse)
+                {
+                    Projeto projeto = new();
+                    projeto.IdProjeto = pr.projectId;
+                    projeto.NomeProjeto = pr.projectName;
+                    projeto.DescricaoProjeto = pr.projectDescription;
+                    projeto.DataCriacaoProjeto = pr.projectCreationDate;
+
+                    projetosList.Add(projeto);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro ao carregar ambientes: {ex.Message}";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/Tarefa", tarefaToCreate);
+
+            if (response.IsSuccessStatusCode)
+            {
+                mensageResponse = "Setor criado com sucesso.";
+                tarefaToCreate = new();
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                mensageResponse = $"Erro: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensageResponse = $"Erro na requisição: {ex.Message}";
+        }
+    }
+}
+
+<style>
+
+    .form-control {
+        background-color: #0D1321;
+        color: #fff;
+        border: 1px solid #555;
+    }
+
+    .form-control::placeholder {
+        color: #fff;
+    }
+
+    .btn-primary {
+        background-color: #1fb6ff;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0d8ddc;
+    }
+</style>
