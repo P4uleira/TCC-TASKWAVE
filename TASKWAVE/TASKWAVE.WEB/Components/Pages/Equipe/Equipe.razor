@@ -34,31 +34,31 @@
 @if (selectedTeam != null)
 {
     <div class="modal fade show d-block" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 1400px;">
-            <div class="modal-content text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; height: 100%;">
-                <div class="modal-header text-white border-bottom-0 px-4" style="background-color: #0D1321;">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content text-black" style="height:535px;">
+                <div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
                     <h5 class="modal-title">Editando: @selectedTeam.teamName</h5>
                     <button type="button" class="btn-close" @onclick="CloseModal"></button>
                 </div>
 
-                <div class="modal-body d-flex flex-column justify-content-between" style="padding: 3rem 5rem;">
+                <div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
                     <EditForm Model="@selectedTeam" OnValidSubmit="UpdateTeam">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
 
-                        <div class="mb-4">
-                            <label for="TeamName" class="form-label">Nome da Equipe</label>
-                            <InputText id="TeamName" class="form-control text-white" style="background-color: #333339;" @bind-Value="selectedTeam.teamName" />
+                        <div class="mb-3">
+                            <label class="mb-3" for="TeamName">Nome da Equipe</label>
+                            <InputText id="TeamName" class="form-control text-white" style="background-color: #333339" @bind-Value="selectedTeam.teamName" />
                         </div>
 
-                        <div class="mb-4">
-                            <label for="TeamDescription" class="form-label">Descrição da Equipe</label>
-                            <InputText id="TeamDescription" class="form-control text-white" style="background-color: #333339;" @bind-Value="selectedTeam.teamDescription" />
+                        <div class="mb-3">
+                            <label for="TeamDescription">Descrição da Equipe</label>
+                            <InputText id="TeamDescription" class="form-control text-white" style="background-color: #333339" @bind-Value="selectedTeam.teamDescription" />
                         </div>
 
-                        <div class="mb-4">
-                            <label for="TeamSector" class="form-label">Setor</label>
-                            <InputSelect id="TeamSector" class="form-select text-white" style="background-color: #333339;" @bind-Value="selectedTeam.sectorId">
+                        <div class="mb-3">
+                            <label class="mb-3" for="TeamSector">Setor</label>
+                            <InputSelect id="TeamSector" class="form-select text-white" style="background-color: #333339" @bind-Value="selectedTeam.sectorId">
                                 @foreach (var sector in sectorListInUse)
                                 {
                                     <option value="@sector.sectorId">@sector.sectorName</option>
@@ -66,10 +66,10 @@
                             </InputSelect>
                         </div>
 
-                        <div class="d-flex justify-content-center gap-4 mt-5">
-                            <button type="submit" class="btn btn-success rounded-pill px-4" style="min-width: 180px;">Salvar Alterações</button>
-                            <button type="button" class="btn btn-danger rounded-pill px-4" style="min-width: 180px;" @onclick="() => DeleteTeam(selectedTeam.teamId)">Excluir Equipe</button>
-                            <button type="button" class="btn btn-secondary rounded-pill px-4" style="min-width: 180px;" @onclick="CloseModal">Cancelar</button>
+                        <div class="d-flex justify-content-center gap-5 mt-5">
+                            <button type="submit" class="btn btn-success rounded-pill w-25">Salvar Alterações</button>
+                            <button type="button" class="btn btn-danger rounded-pill w-25" @onclick="() => DeleteTeam(selectedTeam.teamId)">Excluir Equipe</button>
+                            <button type="button" class="btn btn-secondary rounded-pill w-25" @onclick="CloseModal">Cancelar</button>
                         </div>
                     </EditForm>
                 </div>
@@ -77,7 +77,6 @@
         </div>
     </div>
 }
-
 
 @code {
 

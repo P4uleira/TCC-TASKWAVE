@@ -33,36 +33,35 @@
 </div>
 
 
-
 @if (selectedAccess != null)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 1400px;">
-            <div class="modal-content text-white" style="background-color: #4A4A52; border: 2px solid #0D1321;">
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content text-black" style="height: 535px;">
                 <div class="modal-header text-white border-bottom-0 px-5" style="background-color: #0D1321">
                     <h5 class="modal-title">Editar Acesso</h5>
                     <button type="button" class="btn-close" @onclick="CloseModal"></button>
                 </div>
-                <div class="modal-body px-5 py-4">
+
+                <div class="modal-body text-white" style="background-color: #4A4A52; border: 2px solid #0D1321; padding: 2.5rem 5rem">
                     <EditForm Model="@selectedAccess" OnValidSubmit="UpdateAccess">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
 
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label mb-2">Nome do Acesso</label>
-                                <InputText class="form-control text-white" style="background-color: #333339;" @bind-Value="selectedAccess.accessName" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label mb-2">Descrição do Acesso</label>
-                                <InputText class="form-control text-white" style="background-color: #333339;" @bind-Value="selectedAccess.accessDescription" />
-                            </div>
+                        <div class="mb-3">
+                            <label class="mb-3" for="AccessName">Nome do Acesso</label>
+                            <InputText id="AccessName" class="form-control text-white" style="background-color: #333339; height: 56px;font-size:1rem !important;" @bind-Value="selectedAccess.accessName" />
                         </div>
 
-                        <div class="d-flex justify-content-center gap-4 mt-5">
-                            <button type="submit" class="btn btn-success rounded-pill px-4">Salvar Alterações</button>
-                            <button type="button" class="btn btn-danger rounded-pill px-4" @onclick="() => DeleteAccess(selectedAccess.accessId)">Excluir Acesso</button>
-                            <button type="button" class="btn btn-secondary rounded-pill px-4" @onclick="CloseModal">Cancelar</button>
+                        <div class="mb-3">
+                            <label class="mb-3" for="AccessDescription">Descrição do Acesso</label>
+                            <InputText id="AccessDescription" class="form-control text-white" style="background-color: #333339; height: 56px;" @bind-Value="selectedAccess.accessDescription" />
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-5 mt-5">
+                            <button type="submit" class="btn btn-success rounded-pill w-25">Salvar Alterações</button>
+                            <button type="button" class="btn btn-danger rounded-pill w-25" @onclick="() => DeleteAccess(selectedAccess.accessId)">Excluir Acesso</button>
+                            <button type="button" class="btn btn-secondary rounded-pill w-25" @onclick="CloseModal">Cancelar</button>
                         </div>
                     </EditForm>
                 </div>
