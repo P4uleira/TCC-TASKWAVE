@@ -140,6 +140,7 @@
     {
         taskListFiltrada = null;
         taskListFiltrada = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa");
+        OnFiltrar();
     }
 
     private string _filtroNome = "";
@@ -183,6 +184,7 @@
             todasAsTarefas = tarefas.Where(t =>
                 RemoveAccents(t.taskStatus.ToString()).Equals("EmAndamento", StringComparison.OrdinalIgnoreCase) ||
                 RemoveAccents(t.taskStatus.ToString()).Equals("Pendente", StringComparison.OrdinalIgnoreCase) ||
+                RemoveAccents(t.taskStatus.ToString()).Equals("EmAtraso", StringComparison.OrdinalIgnoreCase) ||
                 RemoveAccents(t.taskStatus.ToString()).Equals("EmAprovacao", StringComparison.OrdinalIgnoreCase)
             ).ToList();
 
@@ -241,6 +243,7 @@
             "emandamento" => "text-warning fw-semibold",
             "emaprovacao" => "text-purple fw-semibold",
             "pendente" => "text-success fw-semibold",
+            "ematraso" => "text-danger fw-semibold",
             _ => "text-secondary"
         };
     }
@@ -255,6 +258,7 @@
             "emandamento" => "Em Andamento",
             "emaprovacao" => "Em Aprovação",
             "pendente" => "Pendente",
+            "ematraso" => "Em Atraso",
             _ => "Indefinido"
         };
     }

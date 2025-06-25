@@ -17,7 +17,7 @@
                         <InputSelect class="form-control" @bind-Value="Tarefa.SituacaoTarefa" >
                             @foreach (var situacao in Enum.GetValues(typeof(SituacaoTarefaEnum)))
                             {
-                                <option value="@situacao">@situacao</option>
+                                <option value="@situacao">@GetStatusLabel(@situacao.ToString())</option>
                             }
                         </InputSelect>
                     </div>
@@ -37,11 +37,7 @@
                     <div class="col">
                         <label>Data Prevista</label>
                         <InputDate class="form-control" @bind-Value="Tarefa.DataPrevistaTarefa" />
-                    </div>
-                    <div class="col">
-                        <label>Data Final</label>
-                        <InputDate  class="form-control" @bind-Value="Tarefa.DataFinalTarefa" />
-                    </div>
+                    </div>                    
                     <div class="col">
                         <button class="btn-success" @onclick="AtualizarTarefa">Atualizar</button>
                     </div>
@@ -128,10 +124,45 @@
         }
     }
 
+    private string RemoveAccents(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input;
+
+        var normalized = input.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                sb.Append(c);
+        }
+        return sb.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    private string GetStatusLabel(string status)
+    {
+        var s = RemoveAccents(status).ToLowerInvariant();
+        return s switch
+        {
+            "cancelada" => "Cancelada",
+            "concluida" => "Concluída",
+            "emandamento" => "Em Andamento",
+            "emaprovacao" => "Em Aprovação",
+            "pendente" => "Pendente",
+            "ematraso" => "Em Atraso",
+            _ => "Indefinido"
+        };
+    }
+
     private async Task AtualizarTarefa()
     {
         if (Tarefa?.IdTarefa > 0)
         {
+            if (Tarefa.SituacaoTarefa == SituacaoTarefaEnum.Concluida || Tarefa.SituacaoTarefa == SituacaoTarefaEnum.Cancelada)
+            {
+                Tarefa.DataFinalTarefa = DateTime.Now;
+            }
+
             TarefaRequest tarefaRequest = new(Tarefa.NomeTarefa, Tarefa.DescricaoTarefa, Tarefa.SituacaoTarefa, Tarefa.PrioridadeTarefa, Tarefa.DataCriacaoTarefa, Tarefa.DataPrevistaTarefa, Tarefa.DataFinalTarefa, Tarefa.ProjetoId);
 
             var response = await Http.PutAsJsonAsync($"/api/Tarefa/{Tarefa.IdTarefa}", tarefaRequest);
