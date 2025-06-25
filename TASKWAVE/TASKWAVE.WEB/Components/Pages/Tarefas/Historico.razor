@@ -1,0 +1,283 @@
+﻿@page "/historicoTarefas"
+@using TASKWAVE.DTO.Responses
+@using TASKWAVE.DTO.Requests
+@using System.Net.Http.Json
+@using System.Globalization
+@using System.Text
+@inject HttpClient Http
+@rendermode InteractiveServer
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+
+<div class="sidebar">
+    <NavMenuOptions Options="@Options" />
+</div>
+
+<h2 class="mb-4 text-white">Histórico de Tarefas</h2>
+
+@if (!string.IsNullOrWhiteSpace(messageResponse))
+{
+    <div class="alert alert-danger">@messageResponse</div>
+}
+else if (taskListFiltrada == null)
+{
+    <p class="text-white">Carregando tarefas...</p>
+}
+else if (!taskListFiltrada.Any())
+{
+    <p class="text-white">Nenhuma tarefa encontrada com os filtros aplicados.</p>
+}
+else
+{
+    <div class="d-flex align-items-center mb-3">
+
+        <div class="position-relative" style="width: 435px;">
+            <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-secondary">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <InputText @bind-Value="FiltroNome"
+                       class="form-control form-control-sm bg-dark text-white border-secondary ps-5"
+                       placeholder="Buscar por nome" />
+        </div>
+        <div class="div-botoes">
+            <div class="d-flex">
+                <div class="position-relative filtro-status">
+                    <InputSelect @bind-Value="FiltroStatus"
+                                 class="form-select form-select-sm bg-dark text-light border-secondary pe-5">
+                        <option value="">Status</option>
+                        <option value="Concluida">Concluída</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </InputSelect>
+                    <span class="position-absolute top-50 end-0 translate-middle-y pe-3 text-secondary">
+                        <i class="fa-solid fa-filter"></i>
+                    </span>
+                </div>
+
+                <div class="position-relative filtro-projeto" style="
+                    padding-left: 200px;
+                ">
+                    <InputSelect @bind-Value="FiltroProjetoId"
+                                 class="form-select form-select-sm bg-dark text-light border-secondary pe-5">
+                        <option value="">Projeto</option>
+                        @foreach (var id in listaProjetosIds)
+                        {
+                            <option value="@id">@mapaProjetoNomes[id]</option>
+                        }
+                    </InputSelect>
+                    <span class="position-absolute top-50 end-0 translate-middle-y pe-3 text-secondary">
+                        <i class="fa-solid fa-filter"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-sm text-white tabela-fina" style="table-layout: fixed; width: 100%;">
+        <colgroup>
+            <col style="width: 5%" />
+            <col style="width: 10%" />
+            <col style="width: 40%" />
+            <col style="width: 25%" />
+            <col style="width: 20%" />
+        </colgroup>
+        <tbody>
+            @foreach (var t in taskListFiltrada.Select((t, index) => new { t, index }))
+            {
+                <tr>
+                    <td class="text-center">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" />
+                            <span class="checkmark"></span>
+                        </label>
+                    </td>
+                    <td class="text-center">@(t.index + 1)</td>
+                    <td>@t.t.taskName</td>
+                    <td><span class="@GetStatusClass(t.t.taskStatus.ToString())">@t.t.taskStatus</span></td>
+                    <td>@(mapaProjetoNomes.TryGetValue(t.t.projectId, out var nomeProjeto) ? nomeProjeto : "Projeto desconhecido")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<HyperLink> Options = new()
+    {
+          new HyperLink("/TarefaCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+          new HyperLink("/Historico", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
+          new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
+          new HyperLink("/Calendario", "Calendario", "Calendario", HyperLink.TypeOfIcon.Calendar),
+          new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
+    };
+
+    private List<TarefaResponse> todasAsTarefas = new();
+    private List<TarefaResponse> taskListFiltrada = new();
+    private List<ProjetoRequest> listaProjetos = new();
+    private Dictionary<int, string> mapaProjetoNomes = new();
+    private List<int> listaProjetosIds = new();
+    private string messageResponse = "";
+
+    private string _filtroNome = "";
+    private string FiltroNome
+    {
+        get => _filtroNome;
+        set { _filtroNome = value; _ = OnFiltrar(); }
+    }
+
+    private string _filtroStatus = "";
+    private string FiltroStatus
+    {
+        get => _filtroStatus;
+        set { _filtroStatus = value; _ = OnFiltrar(); }
+    }
+
+    private string _filtroProjetoId = "";
+    private string FiltroProjetoId
+    {
+        get => _filtroProjetoId;
+        set { _filtroProjetoId = value; _ = OnFiltrar(); }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var tarefas = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa") ?? new();
+            todasAsTarefas = tarefas.Where(t =>
+                RemoveAccents(t.taskStatus.ToString()).Equals("concluida", StringComparison.OrdinalIgnoreCase) ||
+                RemoveAccents(t.taskStatus.ToString()).Equals("cancelada", StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+
+            listaProjetos = await Http.GetFromJsonAsync<List<ProjetoRequest>>("api/Projeto") ?? new();
+            mapaProjetoNomes = listaProjetos.ToDictionary(p => p.projectId, p => p.projectName);
+
+            listaProjetosIds = todasAsTarefas
+                .Select(t => t.projectId)
+                .Where(id => mapaProjetoNomes.ContainsKey(id))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            await OnFiltrar();
+        }
+        catch (Exception ex)
+        {
+            messageResponse = $"Erro ao carregar tarefas ou projetos: {ex.Message}";
+        }
+    }
+
+    private async Task OnFiltrar()
+    {
+        taskListFiltrada = todasAsTarefas.Where(t =>
+            (string.IsNullOrWhiteSpace(FiltroNome) || t.taskName.Contains(FiltroNome, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(FiltroStatus) ||
+             RemoveAccents(t.taskStatus.ToString()).Equals(RemoveAccents(FiltroStatus), StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(FiltroProjetoId) || t.projectId.ToString() == FiltroProjetoId)
+        ).ToList();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string RemoveAccents(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input;
+
+        var normalized = input.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder();
+        foreach (var c in normalized)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                sb.Append(c);
+        }
+        return sb.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    private string GetStatusClass(string status)
+    {
+        var s = RemoveAccents(status).ToLowerInvariant();
+        return s switch
+        {
+            "cancelada" => "text-purple fw-semibold",
+            "concluida" => "text-danger fw-semibold",
+            _ => "text-secondary"
+        };
+    }
+}
+
+<style>
+    .tabela-fina {
+        max-width: 1315px;
+        background-color: #0D1321;
+        border-radius: 10px;
+        overflow: hidden;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+    }
+
+    .text-purple {
+        color: #b17aff !important;
+    }
+
+    .table thead input,
+    .table thead select {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .tabela-fina td {
+        padding: 14px 16px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .tabela-fina tr {
+        min-height: 50px;
+    }
+
+    .filtro-projeto {
+    }
+
+    .div-botoes {
+        display: flex;
+        width: 100%;
+        justify-content: space-around;
+        padding-right: 50px;
+    }
+
+    .custom-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+
+    .checkmark {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background-color: #748CAB;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+
+    .custom-checkbox input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+
+        .custom-checkbox input:checked ~ .checkmark:after {
+            content: "";
+            display: block;
+            width: 6px;
+            height: 6px;
+            margin: 7px;
+            background: white;
+            border-radius: 50%;
+        }
+</style>
