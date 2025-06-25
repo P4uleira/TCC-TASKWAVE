@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TASKWAVE.DOMAIN.ENTITY;
 using TASKWAVE.DOMAIN.Interfaces.Services;
 using TASKWAVE.DTO.Requests;
@@ -6,6 +7,7 @@ using TASKWAVE.DTO.Responses;
 
 namespace TASKWAVE.API.Controllers
 {
+    [Authorize(Policy = "CriarTarefas")]
     [Route("api/[controller]")]
     [ApiController]
     public class TarefaController : ControllerBase
@@ -17,6 +19,7 @@ namespace TASKWAVE.API.Controllers
             _taskService = taskService;
         }
 
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TarefaResponse>>> GetAll()
         {

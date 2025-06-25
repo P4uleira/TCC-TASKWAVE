@@ -17,7 +17,7 @@ namespace TASKWAVE.API.Controllers
             _authService = authService;
         }
 
-        [HttpPost("login")]
+        [HttpPost]
         public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
         {
             try
