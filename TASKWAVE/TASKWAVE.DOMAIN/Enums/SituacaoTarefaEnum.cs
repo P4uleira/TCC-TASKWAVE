@@ -5,6 +5,7 @@
         Pendente,
         EmAndamento,
         Concluida,
+        EmAprovacao,
         Cancelada
     }
 }
