@@ -16,16 +16,16 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-.header a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    text-align: center;
-}
+    .header a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        text-align: center;
+    }
 
 .search-bar input {
     width: 90%;
-    margin-top:10dvh !important;
+    margin-top: 10dvh !important;
     padding: 6px 10px;
     border-radius: 4px;
     border: none;
@@ -40,21 +40,19 @@ body {
     padding: 20px;
     position: fixed;
     top: 90px;
-    left: 0;    
-    
+    left: 0;
 }
 
-.sidebar p {
-    margin: 15px 0;
-    cursor: pointer;
-}
+    .sidebar p {
+        margin: 15px 0;
+        cursor: pointer;
+    }
 
 .content {
-   
-    display:flex;
-    flex-direction:column;
-    margin-left:300px;
-   }
+    display: flex;
+    flex-direction: column;
+    margin-left: 250px; /*Pequena alteração (TESTE)*/
+}
 
 .fieldShow {
     width: 29%;
@@ -85,7 +83,7 @@ textarea {
 }
 
 button {
-   margin-top:2dvh;
+    margin-top: 2dvh;
     background-color: #5c9eff;
     border: none;
     padding: 10px 20px;
@@ -97,12 +95,13 @@ button {
     button:hover {
         background-color: #3c7cd4;
     }
-.search-bar{
-    padding-top:15px;
+
+.search-bar {
+    padding-top: 15px;
 }
 
 .formulario {
     width: 50%;
     display: flex;
     flex-direction: column;
-    }
+}
