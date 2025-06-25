@@ -65,6 +65,17 @@ body {
 }
 
 
+.botao-rosquinha:hover {
+    outline-color: #567290;
+}
+
+
+.botao-rosquinha:active {
+    outline-color: #4a637d;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+
 input[type="text"],
 textarea {
     display:flex;
