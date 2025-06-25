@@ -12,17 +12,17 @@
 <div class="m-md-5">
     <h2>Tarefas</h2>
 
-    <div class="d-flex justify-content-between align-items-end mb-3">
-        <div class="flex-grow-1 me-2">
+    <div class="d-flex gap-5 align-items-end mb-3">
+        <div style="max-width: 520px" class="w-50 me-2">
             <InputText @bind-Value="FiltroNome" class="form-control bg-dark text-white border-secondary" placeholder="Buscar por nome" />
         </div>
         <div class="d-flex gap-3">
             <InputSelect @bind-Value="FiltroStatus" class="form-select bg-dark text-white border-secondary">
-                <option value="">Todos os Status</option>
+                <option value="">Todos os Status<i class="fa-solid fa-filter"></i></option>
                 <option value="EmAndamento">Em andamento</option>
                 <option value="EmAprovacao">Em Aprovação</option>
                 <option value="Pendente">Pendente</option>
-            </InputSelect>
+            </InputSelect><i class="fa-solid fa-filter"></i>
             <InputSelect @bind-Value="FiltroProjetoId" class="form-select bg-dark text-white border-secondary">
                 <option value="">Todos os Projetos</option>
                 @foreach (var id in listaProjetosIds)
@@ -57,24 +57,26 @@
                 @foreach (var t in taskListFiltrada.OrderByDescending(t => t.taskPriority).Select((t, index) => new { t, index }))
                 {
                     <tr>
-                        <td style="width: 50px">
+                        <td class="align-content-center" style="width: 50px">
                             <button class="mt-0" style="background-color: #32373d00" @onclick="@(() => AbrirModal(t.t))">
                                 <img class="botao-rosquinha" width="30px" src="images/Icons/EllipseBotao.png" alt="Clique aqui">
                             </button>
                         </td>
-                        <td>@(t.t.idTask)</td>
-                        <td>@t.t.taskName</td>
+                        <td class="align-content-center">@(t.t.idTask)</td>
+                        <td class="align-content-center">@t.t.taskName</td>
                         <td>
-                            <span class="@GetStatusClass(t.t.taskStatus.ToString())">
-                                @GetStatusLabel(@t.t.taskStatus.ToString())
-                            </span>
+                            <div class="StatusView">
+                                <span class="@GetStatusClass(t.t.taskStatus.ToString())">
+                                    @GetStatusLabel(@t.t.taskStatus.ToString())
+                                </span>
+                            </div>
                         </td>
-                        <td>
+                        <td class="align-content-center">
                             <span>
                                 @t.t.taskPriority.ToString()
                             </span>
                         </td>
-                        <td>@(mapaProjetoNomes.ContainsKey(t.t.projectId) ? mapaProjetoNomes[t.t.projectId] : "Projeto desconhecido")</td>
+                        <td class="align-content-center">@(mapaProjetoNomes.ContainsKey(t.t.projectId) ? mapaProjetoNomes[t.t.projectId] : "Projeto desconhecido")</td>
                     </tr>
                 }
             </tbody>
@@ -262,4 +264,13 @@
     .text-purple {
         color: #b17aff !important;
     }    
+
+    .StatusView {
+        background-color: #333339;
+        min-width: 135px;
+        text-align: center;
+        width: fit-content;
+        padding: 10px;
+        border-radius: 5px;
+    }
 </style>
