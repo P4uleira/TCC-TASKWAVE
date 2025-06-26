@@ -37,7 +37,7 @@
 						</div>
 						<div class="d-flex align-items-center flex-column mt-xl-5">
 							<button type="submit" class="btn btn-primary rounded-3 w-50 rounded-pill fs-4">Criar Conta</button>
-							<a class="text-white mt-2" href="Login">Já possui conta? Acesse aqui</a>
+							<a class="text-white mt-2" href="/">Já possui conta? Acesse aqui</a>
 						</div>
 
 					</EditForm>
@@ -82,6 +82,7 @@
 			{
 				
 				Console.WriteLine("Usuário criado com sucesso!");
+				NavigationManager.NavigateTo("/Home");
 			}
 			else
 			{

@@ -75,7 +75,9 @@
     List<HyperLink> Options = new List<HyperLink>
     {
         new HyperLink("/AcessoCreate", "Criar Acesso", "Criar Acesso", HyperLink.TypeOfIcon.Add),
-        new HyperLink("/Acesso", "Gerenciar Acessos", "Gerenciar Acessos", HyperLink.TypeOfIcon.List)
+        new HyperLink("/Acesso", "Gerenciar Acessos", "Gerenciar Acessos", HyperLink.TypeOfIcon.List),
+        new HyperLink("/AcessToUser", "Adicionar Acessos aos usuários", "Adicionar Acessos aos usuários", HyperLink.TypeOfIcon.Add),
+        new HyperLink("/ManageAccessUsers", "Gerenciar Acessos dos usuários", "Gerenciar Acessos dos usuários", HyperLink.TypeOfIcon.List)
     };
 
     private List<AcessoResponse> accessList = new();

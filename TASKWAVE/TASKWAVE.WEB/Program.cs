@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using TASKWAVE.WEB;
+using TASKWAVE.WEB.Authentication;
 using TASKWAVE.WEB.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,15 +14,20 @@ builder.Services.AddRazorComponents()
 builder.Services.AddBlazorBootstrap();
 
 var baseAddress = builder.Configuration.GetValue<string>("BaseUrl");
-builder.Services.AddScoped<AuthorizationMessageHandler>();
+
+builder.Services.AddAuthentication();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddAuthorization();
+
+builder.Services.AddOutputCache();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddScoped<ApiService>();
 
 builder.Services.AddScoped(sp =>
 {
     var navigation = sp.GetRequiredService<NavigationManager>();
-    var js = sp.GetRequiredService<IJSRuntime>();
-    var handler = sp.GetRequiredService<AuthorizationMessageHandler>();
 
-    return new HttpClient(handler)
+    return new HttpClient
     {
         BaseAddress = new Uri(baseAddress)
     };
@@ -40,6 +47,9 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

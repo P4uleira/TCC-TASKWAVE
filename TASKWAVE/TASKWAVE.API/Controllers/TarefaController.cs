@@ -7,7 +7,7 @@ using TASKWAVE.DTO.Responses;
 
 namespace TASKWAVE.API.Controllers
 {
-    [Authorize(Policy = "CriarTarefas")]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TarefaController : ControllerBase

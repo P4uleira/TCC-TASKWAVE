@@ -1,0 +1,156 @@
+﻿@rendermode InteractiveServer
+@layout EmptyLayout
+@inject HttpClient Http
+@page "/Home"
+
+<main>
+	<a style="position: fixed; top: 0; right: 0" href="/logout">
+		<Icon Name="IconName.BoxArrowRight" Color="IconColor.Danger" />
+	</a>
+	<div class="d-flex flex-column align-items-center justify-content-center m-md-5 mb-xl-5">
+		<AuthorizeView>
+			<Authorized>
+				<h1 class="text-white">Bem-vindo, @context.User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value</h1>							
+			</Authorized>
+		</AuthorizeView>
+	</div>
+	<AuthorizeView Roles="ADMINISTRADOR">
+			<Authorized>
+				<div class="mt-xl-5 d-flex gap-lg-5 flex-sm-wrap justify-content-center">
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/UsuarioManage">
+							<Icon Name="IconName.Person" />
+						<p class="fw-bold">Usuarios</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+					<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Acesso">
+						<Icon Name="IconName.PersonVCard" />
+						<p class="fw-bold">Acessos</p>
+					</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Ambiente">
+							<Icon Name="IconName.House" />
+						<p class="fw-bold">Ambientes</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Equipe">
+							<Icon Name="IconName.People" />
+						<p class="fw-bold">Equipes</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Setor">
+							<Icon Name="IconName.LayoutThreeColumns" />
+						<p class="fw-bold">Setores</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Projeto">
+							<Icon Name="IconName.Book" />
+						<p class="fw-bold">Projetos</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/TarefasManage">
+						<Icon Name="IconName.ListCheck" />
+							<p class="fw-bold">Tarefas</p>
+						</a>
+					</div>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+		<AuthorizeView Roles="GESTOR">
+			<Authorized>
+				<div class="mt-xl-5 d-flex gap-lg-5 flex-sm-wrap justify-content-center">					
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Acesso">
+							<Icon Name="IconName.PersonVCard" />
+							<p class="fw-bold">Acessos</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Ambiente">
+							<Icon Name="IconName.House" />
+							<p class="fw-bold">Ambientes</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Equipe">
+							<Icon Name="IconName.People" />
+							<p class="fw-bold">Equipes</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Setor">
+							<Icon Name="IconName.LayoutThreeColumns" />
+							<p class="fw-bold">Setores</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Projeto">
+							<Icon Name="IconName.Book" />
+							<p class="fw-bold">Projetos</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/TarefasManage">
+							<Icon Name="IconName.ListCheck" />
+							<p class="fw-bold">Tarefas</p>
+						</a>
+					</div>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+	<AuthorizeView Roles="USUARIO">
+			<Authorized>
+				<div class="mt-xl-5 d-flex gap-lg-5 flex-sm-wrap justify-content-center">				
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Equipe">
+							<Icon Name="IconName.People" />
+							<p class="fw-bold">Equipes</p>
+						</a>
+					</div>				
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/Projeto">
+							<Icon Name="IconName.Book" />
+							<p class="fw-bold">Projetos</p>
+						</a>
+					</div>
+					<div class="card_link shadow p-3 mb-5 bg-white rounded">
+						<a class="fs-3 d-flex flex-column align-items-center gap-2 text-decoration-none text-black" href="/TarefasManage">
+							<Icon Name="IconName.ListCheck" />
+							<p class="fw-bold">Tarefas</p>
+						</a>
+					</div>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+</main>
+
+@code {
+
+}
+
+<style>
+body {
+		background-color: #333339;
+		font-family: Verdana;
+
+	}
+
+	.card_link {
+		display: flex;
+		justify-content: center;
+		flex-direction: column;
+		align-items: center;
+		width: 200px;
+		/* padding: 30px; */
+		background-color: #F0EBD8;
+		border-radius: 15px;
+		height: 175px;
+		margin-top: 25px;
+	}
+</style>
