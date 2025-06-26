@@ -90,9 +90,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        bool uservalid = await ApiService.SetAuthorizeHeaderAsync();
+        if (!uservalid)
+        {
+            NavigationManager.NavigateTo("/");
+        }
         await GetProjectAll();
-    }
-
+    }    
+            
     private async Task GetProjectAll()
     {
         try
@@ -125,11 +130,20 @@
         try
         {
 
-            TarefaResponse tarefaResponse = new(tarefaToCreate.IdTarefa, tarefaToCreate.NomeTarefa, tarefaToCreate.DescricaoTarefa, SituacaoTarefaEnum.Pendente, tarefaToCreate.PrioridadeTarefa, DateTime.Now, tarefaToCreate.DataPrevistaTarefa, tarefaToCreate.DataFinalTarefa, tarefaToCreate.ProjetoId);
+            TarefaRequest tarefaResponse = new(                 
+                tarefaToCreate.NomeTarefa, 
+                tarefaToCreate.DescricaoTarefa, 
+                SituacaoTarefaEnum.Pendente, 
+                tarefaToCreate.PrioridadeTarefa, 
+                DateTime.Now, 
+                tarefaToCreate.DataPrevistaTarefa, 
+                DateTime.MinValue, 
+                tarefaToCreate.ProjetoId
+            );
 
             var response = await Http.PostAsJsonAsync("api/Tarefa", tarefaResponse);
 
-            if (response.IsSuccessStatusCode || ((int)response.StatusCode) == 500)
+            if (response.IsSuccessStatusCode)
             {
                 mensageResponse = "Tarefa criada com sucesso.";
                 tarefaToCreate = new();

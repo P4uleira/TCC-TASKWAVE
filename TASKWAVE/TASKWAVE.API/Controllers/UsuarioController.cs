@@ -39,7 +39,7 @@ namespace TASKWAVE.API.Controllers
         {
             var users = new Usuario(projectRequest.userName, projectRequest.userEmail, projectRequest.userPassword, projectRequest.userCreationDate);
             await _userService.CreateUsuario(users);
-            return CreatedAtAction(nameof(GetById), new { idUser = users.IdUsuario }, null);
+            return Ok();
         }
 
         [HttpPost("AddUserInEquip")]

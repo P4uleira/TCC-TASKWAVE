@@ -39,7 +39,7 @@ namespace TASKWAVE.API.Controllers
         {
             var access = new Acesso(accessRequest.accessName, accessRequest.accessDescription, accessRequest.accessCreationDate);
             await _accessService.CreateAccess(access);
-            return CreatedAtAction(nameof(GetById), new { idAccess = access.IdAcesso }, null);
+            return Ok();
         }
 
         [HttpPost("AddAccessToUser/{idAccess}/{idUser}")]

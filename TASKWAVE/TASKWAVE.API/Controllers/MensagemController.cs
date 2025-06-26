@@ -40,7 +40,7 @@ namespace TASKWAVE.API.Controllers
         {
             var message = new Mensagem(messageRequest.messageContent, messageRequest.messageSentDate, messageRequest.taskId);
             await _messageService.CreateMessage(message);
-            return CreatedAtAction(nameof(GetById), new { id = message.IdMensagem }, null);
+            return Ok();
         }
 
         [HttpGet("Tarefa/{idTarefa}/Mensagens")]

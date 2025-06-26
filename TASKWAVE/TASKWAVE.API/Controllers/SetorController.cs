@@ -40,7 +40,7 @@ namespace TASKWAVE.API.Controllers
         {
             var sector = new Setor(sectorRequest.sectorName, sectorRequest.sectorDescription, sectorRequest.environmentId);
             await _sectorService.CreateSector(sector);
-            return CreatedAtAction(nameof(GetById), new { idsector = sector.IdSetor }, null);
+            return Ok();
         }
 
 
