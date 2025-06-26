@@ -108,6 +108,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        bool uservalid = await ApiService.SetAuthorizeHeaderAsync();
+        if (!uservalid)
+        {
+            NavigationManager.NavigateTo("/");
+        }
         tarefas = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa") ?? new();
         totalTarefas = tarefas.Count;
 

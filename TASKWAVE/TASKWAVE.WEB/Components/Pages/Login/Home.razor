@@ -77,6 +77,11 @@
 	private bool isUser;
 	protected override async Task OnInitializedAsync()
 	{
+		bool uservalid = await ApiService.SetAuthorizeHeaderAsync();
+		if (!uservalid)
+		{
+			NavigationManager.NavigateTo("/");
+		}
 		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 		isAdmin = authState.User.IsInRole("ADMINISTRADOR");	
 		isGestor = authState.User.IsInRole("GESTOR");

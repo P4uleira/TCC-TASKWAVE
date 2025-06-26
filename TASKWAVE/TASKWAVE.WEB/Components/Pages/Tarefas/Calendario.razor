@@ -77,7 +77,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await ApiService.SetAuthorizeHeaderAsync();
+        bool uservalid = await ApiService.SetAuthorizeHeaderAsync();
+        if (!uservalid)
+        {
+            NavigationManager.NavigateTo("/");
+        }
         await CarregarTarefas();
         GerarDiasDoMes();
     }

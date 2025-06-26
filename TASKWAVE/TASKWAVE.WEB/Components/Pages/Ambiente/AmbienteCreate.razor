@@ -56,6 +56,15 @@
     private AmbienteRequest environmentToCreate = new();
     private string mensageResponse;
 
+    protected override async Task OnInitializedAsync()
+    {
+        bool uservalid = await ApiService.SetAuthorizeHeaderAsync();
+        if (!uservalid)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
     private async Task HandleValidSubmit()
     {
         try
