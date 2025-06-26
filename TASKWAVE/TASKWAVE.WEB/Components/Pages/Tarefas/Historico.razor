@@ -74,9 +74,10 @@
         <table class="table table-dark rounded-2" style="table-layout: fixed; width: 100%;">
             <colgroup>
                 <col style="width: 5%" />
-                <col style="width: 10%" />
-                <col style="width: 40%" />
-                <col style="width: 25%" />
+                <col style="width: 5%" />
+                <col style="width: 30%" />
+                <col style="width: 20%" />
+                <col style="width: 20%" />
                 <col style="width: 20%" />
             </colgroup>
             <tbody>
@@ -97,6 +98,7 @@
                             </div>
                         </td>
                         <td class="align-content-center">@(mapaProjetoNomes.TryGetValue(t.t.projectId, out var nomeProjeto) ? nomeProjeto : "Projeto desconhecido")</td>
+                        <td class="align-content-center">@t.t.taskFinalDate</td>
                     </tr>
                 }
             </tbody>
@@ -108,9 +110,9 @@
       {
           new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
           new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
+          new HyperLink("/CalendarioTarefas", "Calendário", "Calendário", HyperLink.TypeOfIcon.Calendar),
           new HyperLink("/historicoTarefas", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
           new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
-          
           new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
       };
 

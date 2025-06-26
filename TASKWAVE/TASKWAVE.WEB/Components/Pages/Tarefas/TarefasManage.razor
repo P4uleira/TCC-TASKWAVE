@@ -1,4 +1,5 @@
 ﻿@page "/TarefasManage"
+@page "/TarefasManage/{TermoBuscado?}"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Authorization
 @using TASKWAVE.WEB.Components.Layout
@@ -104,13 +105,17 @@
 }
 
 @code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? TermoBuscado { get; set; }
+
     List<HyperLink> Options = new List<HyperLink>
       {
           new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
           new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
+          new HyperLink("/CalendarioTarefas", "Calendário", "Calendário", HyperLink.TypeOfIcon.Calendar),
           new HyperLink("/historicoTarefas", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
           new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
-
           new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
       };
 
@@ -217,6 +222,12 @@
                 .Distinct()
                 .OrderBy(x => x)
                 .ToList();
+
+            if (!string.IsNullOrWhiteSpace(TermoBuscado))
+            {
+                FiltroNome = string.Empty;
+                FiltroNome = TermoBuscado;
+            }
 
             await OnFiltrar();
         }
