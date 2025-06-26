@@ -13,24 +13,10 @@
     <NavMenuOptions Options="@Options" />
 </div>
 
-<h2 class="mb-4 text-white">Histórico de Tarefas</h2>
 
-@if (!string.IsNullOrWhiteSpace(messageResponse))
-{
-    <div class="alert alert-danger">@messageResponse</div>
-}
-else if (taskListFiltrada == null)
-{
-    <p class="text-white">Carregando tarefas...</p>
-}
-else if (!taskListFiltrada.Any())
-{
-    <p class="text-white">Nenhuma tarefa encontrada com os filtros aplicados.</p>
-}
-else
-{
+<div class="m-md-5">
+    <h2 class="mb-4 text-white">Histórico de Tarefas</h2>
     <div class="d-flex align-items-center mb-3">
-
         <div class="position-relative" style="width: 435px;">
             <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-secondary">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -54,8 +40,8 @@ else
                 </div>
 
                 <div class="position-relative filtro-projeto" style="
-                    padding-left: 200px;
-                ">
+                        padding-left: 200px;
+                    ">
                     <InputSelect @bind-Value="FiltroProjetoId"
                                  class="form-select form-select-sm bg-dark text-light border-secondary pe-5">
                         <option value="">Projeto</option>
@@ -71,35 +57,52 @@ else
             </div>
         </div>
     </div>
-
-    <table class="table table-sm text-white tabela-fina" style="table-layout: fixed; width: 100%;">
-        <colgroup>
-            <col style="width: 5%" />
-            <col style="width: 10%" />
-            <col style="width: 40%" />
-            <col style="width: 25%" />
-            <col style="width: 20%" />
-        </colgroup>
-        <tbody>
-            @foreach (var t in taskListFiltrada.Select((t, index) => new { t, index }))
-            {
-                <tr>
-                    <td class="text-center">
-                        <label class="custom-checkbox">
-                            <input type="checkbox" />
-                            <span class="checkmark"></span>
-                        </label>
-                    </td>
-                    <td class="text-center">@(t.index + 1)</td>
-                    <td>@t.t.taskName</td>
-                    <td><span class="@GetStatusClass(t.t.taskStatus.ToString())">@t.t.taskStatus</span></td>
-                    <td>@(mapaProjetoNomes.TryGetValue(t.t.projectId, out var nomeProjeto) ? nomeProjeto : "Projeto desconhecido")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
+    @if (!string.IsNullOrWhiteSpace(messageResponse))
+    {
+        <div class="alert alert-danger">@messageResponse</div>
+    }
+    else if (taskListFiltrada == null)
+    {
+        <p class="text-white">Carregando tarefas...</p>
+    }
+    else if (!taskListFiltrada.Any())
+    {
+        <p class="text-white">Nenhuma tarefa encontrada com os filtros aplicados.</p>
+    }
+    else
+    {  
+        <table class="table table-dark rounded-2" style="table-layout: fixed; width: 100%;">
+            <colgroup>
+                <col style="width: 5%" />
+                <col style="width: 10%" />
+                <col style="width: 40%" />
+                <col style="width: 25%" />
+                <col style="width: 20%" />
+            </colgroup>
+            <tbody>
+                @foreach (var t in taskListFiltrada.Select((t, index) => new { t, index }))
+                {
+                    <tr>
+                        <td class="text-center align-content-center">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" />
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td class="text-center align-content-center">@(t.index + 1)</td>
+                        <td class="align-content-center">@t.t.taskName</td>
+                        <td class="align-content-center">
+                            <div class="StatusView">
+                                <span class="@GetStatusClass(t.t.taskStatus.ToString())">@t.t.taskStatus</span>
+                            </div>
+                        </td>
+                        <td class="align-content-center">@(mapaProjetoNomes.TryGetValue(t.t.projectId, out var nomeProjeto) ? nomeProjeto : "Projeto desconhecido")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
 @code {
     List<HyperLink> Options = new List<HyperLink>
       {
@@ -107,7 +110,7 @@ else
           new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
           new HyperLink("/historicoTarefas", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
           new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
-          new HyperLink("/Calendario", "Calendario", "Calendario", HyperLink.TypeOfIcon.Calendar),
+          
           new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
       };
 
@@ -231,10 +234,20 @@ else
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        border: 1px solid #4D5154;
     }
 
     .tabela-fina tr {
         min-height: 50px;
+    }
+
+    .StatusView {
+        background-color: #333339;
+        min-width: 135px;
+        text-align: center;
+        width: fit-content;
+        padding: 10px;
+        border-radius: 5px;
     }
 
     .filtro-projeto {
@@ -281,4 +294,8 @@ else
             background: white;
             border-radius: 50%;
         }
+
+    .table-dark {
+        background-color: #0d1321 !important;
+    }
 </style>
