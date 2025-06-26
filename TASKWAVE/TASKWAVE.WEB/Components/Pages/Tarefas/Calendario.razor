@@ -1,0 +1,216 @@
+﻿@page "/CalendarioTarefas"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using TASKWAVE.WEB.Components.Layout
+@layout NavMenu
+@inject HttpClient Http
+
+<PageTitle>Criar Tarefa</PageTitle>
+<div class="sidebar">
+    <NavMenuOptions Options="@Options" />
+</div>
+
+<div class="m-md-5">
+    <h3 class="text-white mb-4">Calendário de Tarefas</h3>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <button class="btn btn-outline-light" @onclick="MesAnterior">← Mês Anterior</button>
+        <h4 class="text-white">@mesAtualNome @anoAtual</h4>
+        <button class="btn btn-outline-light" @onclick="ProximoMes">Próximo Mês →</button>
+    </div>
+    <div class="calendar-grid calendar-header mb-2">
+        @foreach (var diaNome in new[] { "Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb" })
+        {
+            <div class="calendar-cell-label dia-label text-center fw-bold text-white">@diaNome</div>
+        }
+    </div>
+    <div class="calendar-grid">
+        @foreach (var dia in diasDoMes)
+        {
+            if (dia == DateTime.MinValue)
+            {
+                <div class="calendar-cell vazio"></div>
+            }
+            else
+            {
+                var tarefasDoDia = tarefas
+                .Where(t => t.taskPlannedDate?.Date == dia.Date)
+                .ToList();
+
+                var primeiraTarefa = tarefasDoDia.FirstOrDefault();
+
+                <div class="calendar-cell @(tarefasDoDia.Any() ? "com-tarefa" : "")"
+                     title="@string.Join(", ", tarefasDoDia.Select(t => t.taskName))"
+                     @onclick="() => AbrirModal(primeiraTarefa)">
+                    <span class="dia-numero">@dia.Day</span>
+                </div>
+            }
+        }
+    </div>
+</div>
+@if (TarefaSelecionada is not null)
+{
+    <TarefaModal Tarefa="@TarefaSelecionada"
+                 IsVisible="@ExibirModal"
+                 OnClose="@AoFecharModal" />
+}
+@code { 
+    
+    List<HyperLink> Options = new List<HyperLink>
+      {
+          new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
+          new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
+          new HyperLink("/CalendarioTarefas", "Calendário", "Calendário", HyperLink.TypeOfIcon.Calendar),
+          new HyperLink("/historicoTarefas", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
+          new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
+          new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
+      };
+    private bool ExibirModal = false;
+    private Tarefa TarefaSelecionada;
+    private List<TarefaResponse> tarefas = new();
+    private List<DateTime> diasDoMes = new();
+    private int mesAtual = DateTime.Now.Month;
+    private int anoAtual = DateTime.Now.Year;
+    private string mesAtualNome => new DateTime(anoAtual, mesAtual, 1)
+                                       .ToString("MMMM", new System.Globalization.CultureInfo("pt-BR"))
+                                       .ToUpperInvariant();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ApiService.SetAuthorizeHeaderAsync();
+        await CarregarTarefas();
+        GerarDiasDoMes();
+    }
+
+    private async Task CarregarTarefas()
+    {
+        
+        tarefas = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa")
+                  ?? new List<TarefaResponse>();
+    }
+
+    private void GerarDiasDoMes()
+    {
+        diasDoMes.Clear();
+
+        var primeiroDia = new DateTime(anoAtual, mesAtual, 1);
+        int diasNoMes = DateTime.DaysInMonth(anoAtual, mesAtual);
+
+        int diaDaSemana = (int)primeiroDia.DayOfWeek; // 0 = Domingo
+
+        // Preenche espaços vazios antes do dia 1
+        for (int i = 0; i < diaDaSemana; i++)
+            diasDoMes.Add(DateTime.MinValue); // usado para células vazias
+
+        // Adiciona os dias do mês
+        for (int dia = 1; dia <= diasNoMes; dia++)
+            diasDoMes.Add(new DateTime(anoAtual, mesAtual, dia));
+    }
+
+    private void ProximoMes()
+    {
+        if (mesAtual == 12) { mesAtual = 1; anoAtual++; }
+        else mesAtual++;
+        GerarDiasDoMes();
+    }
+
+    private void MesAnterior()
+    {
+        if (mesAtual == 1) { mesAtual = 12; anoAtual--; }
+        else mesAtual--;
+        GerarDiasDoMes();
+    }
+
+    private async Task AbrirModal(TarefaResponse tarefa)
+    {
+        Tarefa tarefa1 = new Tarefa
+            {
+                IdTarefa = tarefa.idTask,
+                NomeTarefa = tarefa.taskName,
+                DescricaoTarefa = tarefa.taskDescription,
+                DataCriacaoTarefa = tarefa.taskCreationDate,
+                DataPrevistaTarefa = (DateTime)tarefa.taskPlannedDate,
+                DataFinalTarefa = (DateTime)tarefa.taskFinalDate,
+                SituacaoTarefa = tarefa.taskStatus,
+                PrioridadeTarefa = tarefa.taskPriority,
+                ProjetoId = tarefa.projectId
+            };
+
+        TarefaSelecionada = tarefa1;
+        ExibirModal = true;
+    }
+
+    private async Task AoFecharModal()
+    {
+        ExibirModal = false;
+        await CarregarTarefas(); // recarrega a lista
+    }
+}
+
+<style>
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        padding: 8px;
+        background-color: #1e1e2f;
+        border-radius: 8px;
+    }
+
+    .calendar-cell-label {
+        position: relative;
+        /* height: 80px; */
+        background-color: #2a2a3d;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #ccc;
+        cursor: default;
+    }
+
+    .calendar-cell {
+        position: relative;
+        height: 80px;
+        background-color: #2a2a3d;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #ccc;
+        cursor: default;
+    }
+
+        .calendar-cell span.dia-numero {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .calendar-cell.com-tarefa {
+            background-color: #5e3fff;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+            .calendar-cell.com-tarefa:hover {
+                transform: scale(1.05);
+            }
+
+        .calendar-cell.vazio {
+            background-color: transparent;
+            border: none;
+            cursor: default;
+        }
+
+    .calendar-header {
+        margin-bottom: 5px;
+    }
+
+    .calendar-cell.dia-label {
+        background-color: transparent;
+        border: none;
+        color: #bbb;
+        font-size: 0.9rem;
+    }
+</style>
