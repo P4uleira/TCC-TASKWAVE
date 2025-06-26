@@ -205,7 +205,11 @@
     {
         try
         {
-            await ApiService.SetAuthorizeHeaderAsync();
+            bool uservalid = await ApiService.SetAuthorizeHeaderAsync();
+            if (!uservalid)
+            {
+                NavigationManager.NavigateTo("/");
+            }
             var tarefas = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa") ?? new();
             todasAsTarefas = tarefas.Where(t =>
                 RemoveAccents(t.taskStatus.ToString()).Equals("EmAndamento", StringComparison.OrdinalIgnoreCase) ||

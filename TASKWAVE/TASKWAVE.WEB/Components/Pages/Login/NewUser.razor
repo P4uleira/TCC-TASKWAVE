@@ -52,6 +52,17 @@
 	public string alredyExistEmailMessage = string.Empty;
 	private Usuario usuario = new();
 
+
+	protected override async Task OnInitializedAsync()
+	{
+		bool uservalid = await ApiService.SetAuthorizeHeaderAsync();
+		if (!uservalid)
+		{
+			NavigationManager.NavigateTo("/");
+		}
+	}
+	
+
 	private async Task HandleValidSubmit()
 	{		
 		List<Usuario>? usuarios1;

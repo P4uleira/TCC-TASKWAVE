@@ -153,7 +153,11 @@
 	private string mensageResponse;
 
 	protected override async Task OnInitializedAsync()	{
-
+		bool uservalid = await ApiService.SetAuthorizeHeaderAsync();
+		if (!uservalid)
+		{
+			NavigationManager.NavigateTo("/");
+		}
 		await GetAllUsers();
 		await GetAllEquipes();
 	}
