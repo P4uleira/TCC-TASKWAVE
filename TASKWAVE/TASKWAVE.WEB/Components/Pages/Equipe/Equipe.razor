@@ -83,7 +83,11 @@
     List<HyperLink> Options = new List<HyperLink>
     {
         new HyperLink("/EquipeCreate", "Criar Equipe", "Criar Equipe", HyperLink.TypeOfIcon.Add),
-        new HyperLink("/Equipe", "Gerenciar Equipes", "Gerenciar Equipes", HyperLink.TypeOfIcon.List)
+        new HyperLink("/Equipe", "Gerenciar Equipes", "Gerenciar Equipes", HyperLink.TypeOfIcon.List),
+        new HyperLink("/ManageTeamProjects", "Gerenciar Projetos de equipes", "Gerenciar Projetos de equipes", HyperLink.TypeOfIcon.List),
+        new HyperLink("/ManageTeamUsers", "Gerenciar Usuários de equipes", "Gerenciar Usuários de equipes", HyperLink.TypeOfIcon.List),
+        new HyperLink("/ProjectToTeam", "Projetos para equipes", "Projetos para equipes", HyperLink.TypeOfIcon.Add),
+        new HyperLink("/UserToTeam", "Usuários para equipes", "Usuários para equipes", HyperLink.TypeOfIcon.Add),
     };
 
     private List<SetorResponse> sectorListInUse = new();
