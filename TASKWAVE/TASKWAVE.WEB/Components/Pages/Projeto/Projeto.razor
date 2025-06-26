@@ -81,7 +81,10 @@
 
                         <div class="d-flex justify-content-center gap-5">
                             <button type="submit" class="btn btn-success rounded-pill w-25">Salvar Alterações</button>
-                            <button type="button" class="btn btn-danger rounded-pill w-25" @onclick="() => DeleteProject(selectedProject.projectId)">Excluir Projeto</button>
+                            @if (isAdmin)
+                            {
+                                <button class="btn btn-danger" @onclick="() => DeleteProject(selectedProject.projectId)">Excluir Projeto</button>
+                            }
                             <button type="button" class="btn btn-secondary rounded-pill w-25" @onclick="CloseModal">Cancelar</button>
                         </div>
                     </EditForm>
@@ -100,6 +103,7 @@
         new HyperLink("/Projeto", "Gerenciar Projetos", "Gerenciar Projetos", HyperLink.TypeOfIcon.List)
     };
 
+    private bool isAdmin;
     private List<EquipeResponse> teamListInUse = new();
     private List<ProjetoResponse> projectList = new();
     private string mensageResponse;
@@ -107,9 +111,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAdmin = authState.User.IsInRole("ADMINISTRADOR");
+
         await GetAllTeams();
         await GetAllProjects();
     }
+
 
     #region CRUD
     private async Task GetAllTeams()

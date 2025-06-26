@@ -5,8 +5,8 @@
 @rendermode InteractiveServer
 @layout EmptyLayout
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
+<PageTitle>Login</PageTitle>
 
 <div>
 	<div class="d-flex justify-content-center w-100">
@@ -82,7 +82,7 @@
 			await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(loginResponse.Token);
 			await ApiService.SetAuthorizeHeaderAsync();
 
-			NavigationManager.NavigateTo("/TarefasManage");
+			NavigationManager.NavigateTo("/Home");
 		}else
 		{
 			messageResponse = "Login inválido. Verifique email e senha.";
