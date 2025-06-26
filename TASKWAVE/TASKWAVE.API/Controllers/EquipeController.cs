@@ -58,7 +58,7 @@ namespace TASKWAVE.API.Controllers
         {
             var team = new Equipe(teamRequest.teamName, teamRequest.teamDescription, teamRequest.sectorId);
             await _teamService.CreateTeam(team);
-            return CreatedAtAction(nameof(GetById), new { idTeam = team.IdEquipe }, null);
+            return Ok();
         }
 
 

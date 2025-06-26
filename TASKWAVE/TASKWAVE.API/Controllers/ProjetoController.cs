@@ -40,7 +40,7 @@ namespace TASKWAVE.API.Controllers
         {
             var project = new Projeto(projectRequest.projectName, projectRequest.projectDescription, projectRequest.projectCreationDate);
             await _projectService.CreateProject(project);
-            return CreatedAtAction(nameof(GetById), new { idProject = project.IdProjeto }, null);
+            return Ok();
         }
 
         [HttpPost("AddProjectInTeam")]

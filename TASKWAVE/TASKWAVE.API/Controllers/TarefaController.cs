@@ -41,7 +41,7 @@ namespace TASKWAVE.API.Controllers
         {
             var task = new Tarefa(taskRequest.taskName, taskRequest.taskDescription, taskRequest.taskStatus, taskRequest.taskPriority, taskRequest.taskCreationDate, (DateTime)taskRequest.taskPlannedDate, (DateTime)taskRequest.taskFinalDate, taskRequest.projectId);
             await _taskService.CreateTask(task);
-            return CreatedAtAction(nameof(GetById), new { id = task.IdTarefa }, null);
+            return Ok();
         }
         [HttpPut("{idTask}")]
         public async Task<ActionResult> Update(int idTask, TarefaRequest taskRequest)
