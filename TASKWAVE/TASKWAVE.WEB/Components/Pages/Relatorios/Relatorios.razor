@@ -82,14 +82,16 @@ else
 @code {
 
     List<HyperLink> Options = new List<HyperLink>
-      {
+    {
           new HyperLink("/TarefasCreate", "Criar Tarefa", "Criar Tarefa", HyperLink.TypeOfIcon.Add),
           new HyperLink("/TarefasManage", "Gerenciar Tarefas", "Gerenciar Tarefas", HyperLink.TypeOfIcon.List),
           new HyperLink("/CalendarioTarefas", "Calendário", "Calendário", HyperLink.TypeOfIcon.Calendar),
           new HyperLink("/historicoTarefas", "Histórico", "Histórico", HyperLink.TypeOfIcon.History),
           new HyperLink("/Desempenho", "Desempenho", "Desempenho", HyperLink.TypeOfIcon.ClipBoard),
           new HyperLink("/Relatorios", "Relatórios", "Relatórios", HyperLink.TypeOfIcon.Reports)
-      };
+    };
+
+
 
     private List<TarefaResponse> tarefas;
     private int totalTarefas;
@@ -109,7 +111,22 @@ else
         tarefas = await Http.GetFromJsonAsync<List<TarefaResponse>>("api/Tarefa") ?? new();
         totalTarefas = tarefas.Count;
 
-        tempoMedio = null;
+        var tarefasConcluidas = tarefas
+        .Where(t => t.taskFinalDate.HasValue && t.taskFinalDate > t.taskCreationDate)
+        .ToList();
+
+        if (tarefasConcluidas.Any())
+        {
+            var somaTempos = tarefasConcluidas
+                .Select(t => t.taskFinalDate.Value - t.taskCreationDate)
+                .Aggregate(TimeSpan.Zero, (acc, next) => acc + next);
+
+            tempoMedio = TimeSpan.FromTicks(somaTempos.Ticks / tarefasConcluidas.Count);
+        }
+        else
+        {
+            tempoMedio = null;
+        }
 
         resumoUsuarios = tarefas
             .GroupBy(t => t.projectId.ToString())
