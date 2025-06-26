@@ -45,6 +45,13 @@ namespace TASKWAVE.INFRA.Repositories
             return await _context.Tarefas.FindAsync(idTask);
         }
 
+        public async Task<List<Tarefa>> GetTasksByUsuarioEquipe(int usuarioId)
+        {
+            return await _context.Tarefas
+                .Where(t => t.Projeto.Equipes
+                    .Any(e => e.Usuarios.Any(u => u.IdUsuario == usuarioId)))
+                .ToListAsync();
+        }
     }
 }
 

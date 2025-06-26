@@ -1,4 +1,5 @@
-﻿using TASKWAVE.DOMAIN.ENTITY;
+﻿using Microsoft.EntityFrameworkCore;
+using TASKWAVE.DOMAIN.ENTITY;
 using TASKWAVE.DOMAIN.Interfaces.Repositories;
 using TASKWAVE.DOMAIN.Interfaces.Services;
 
@@ -59,6 +60,11 @@ namespace TASKWAVE.DOMAIN.Services
         public async Task<Tarefa> GetTaskById(int idTask)
         {
             return await _taskRepository.GetByIdAsync(idTask);
+        }
+
+        public async Task<List<Tarefa>> GetTasksByUsuarioEquipe(int usuarioId)
+        {
+            return await _taskRepository.GetTasksByUsuarioEquipe(usuarioId);
         }
     }
 }

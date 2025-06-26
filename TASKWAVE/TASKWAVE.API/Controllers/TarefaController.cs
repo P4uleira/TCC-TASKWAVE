@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TASKWAVE.DOMAIN.ENTITY;
 using TASKWAVE.DOMAIN.Interfaces.Services;
@@ -23,8 +25,29 @@ namespace TASKWAVE.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TarefaResponse>>> GetAll()
         {
-            var tasks = await _taskService.GetAllTasks();
-            var response = tasks.Select(task => new TarefaResponse(task.IdTarefa, task.NomeTarefa, task.DescricaoTarefa, task.SituacaoTarefa, task.PrioridadeTarefa, task.DataCriacaoTarefa, task.DataPrevistaTarefa, task.DataFinalTarefa, task.ProjetoId));
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out var usuarioId))
+            {
+                return Unauthorized("Usuário inválido");
+            }
+            var acessos = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+
+            var tasks = acessos.Contains("ADMINISTRADOR") || acessos.Contains("GESTOR")
+            ? await _taskService.GetAllTasks()
+            : await _taskService.GetTasksByUsuarioEquipe(usuarioId);
+
+            var response = tasks.Select(task => new TarefaResponse(
+                task.IdTarefa,
+                task.NomeTarefa,
+                task.DescricaoTarefa,
+                task.SituacaoTarefa,
+                task.PrioridadeTarefa,
+                task.DataCriacaoTarefa,
+                task.DataPrevistaTarefa,
+                task.DataFinalTarefa,
+                task.ProjetoId
+            ));
+
             return Ok(response);
         }
 
