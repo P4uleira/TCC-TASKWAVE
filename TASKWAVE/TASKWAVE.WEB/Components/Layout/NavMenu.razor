@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@using TASKWAVE.DOMAIN.ENTITY
+@inject NavigationManager NavigationManager
 @inject HttpClient Http
 
 <link rel="stylesheet" href="bootstrap/site.css" />
@@ -10,20 +12,20 @@
         <a href="/Equipe">Equipes</a>
     </div>
     <div class="d-flex justify-content-center">
-        <a href="/">
+        <a href="/Home">
             <img style="width: 15%;" src="images/TaskWave_Logo.png" alt="Task Wave Logo" />
         </a>
     </div>
     <div class="d-flex justify-content-evenly align-items-center w-50">
-        <input style="width: 50%" type="text" placeholder="Buscar..." />
-        <a href="#">
-            <img style="width: 50%; min-width: 22px" src="images/Icons/Notification.png" alt="Notif Icon Opções" />
-        </a>
-        <a href="#">
+        <input @bind-value="FiltroNome" style="width: 50%" type="text" placeholder="Buscar..." />
+        <Tooltip Title="Sem Notificações" Placement="TooltipPlacement.Bottom"><img style="width: 50%; min-width: 22px" src="images/Icons/Notification.png" alt="Notif Icon Opções" /><Badge>0</Badge></Tooltip>
+
+        <button class="btn1">
             <img style="width: 50%; min-width: 22px" src="images/Icons/Config.png" alt="Config Icon Opções" />
-        </a>
+        </button>    
+
         <a href="/logout">
-            <img style="width: 50%; min-width: 22px" src="images/Icons/User.png" alt="User Icon Opções" />
+            <i class="fas fa-sign-out"></i>
         </a>
     </div>
 </div>
@@ -32,3 +34,28 @@
     @Body
 </div>
 
+@code {
+    string searchTerm = string.Empty;    
+
+    private string _searchTerm = "";
+    private string FiltroNome
+    {
+        get => _searchTerm;
+        set
+        {
+            _searchTerm = value;
+            NavigationManager.NavigateTo($"/TarefasManage/{FiltroNome}");
+        }
+    }
+}
+
+<style>
+    .btn1 {
+        margin-top: 0;
+        background-color: #5c9eff00;
+    }
+
+    .btn1:hover {
+            background-color: #3c7cd400 !important;
+    }
+</style>
