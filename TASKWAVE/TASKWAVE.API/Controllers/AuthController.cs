@@ -22,7 +22,7 @@ namespace TASKWAVE.API.Controllers
             _userService = userService;
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest loginRequest)
         {
             var userExist = await _userService.AutenticarAsync(loginRequest.Email, loginRequest.Senha);
@@ -30,43 +30,50 @@ namespace TASKWAVE.API.Controllers
             if (userExist != null)
             {
                 var token = await GenerateJwtToken(loginRequest.Email);
+
                 return Ok(new LoginResponse { Token = token });
             }
 
             return Unauthorized("Email ou senha inválidos");
         }
 
-        private async Task<string> GenerateJwtToken(string email) 
+        private async Task<string> GenerateJwtToken(string email)
         {
             var accessList = await _userService.GetByEmailWithAccessesAsync(email);
 
+            var now = DateTimeOffset.UtcNow;
+            var expires = now.AddHours(1);
+
             var claims = new List<Claim>
             {
-                new Claim("user", accessList.IdUsuario.ToString()),
-                new Claim("nome", accessList.NomeUsuario)
+                new Claim(JwtRegisteredClaimNames.Sub, accessList.IdUsuario.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, accessList.NomeUsuario),
+                new Claim(JwtRegisteredClaimNames.Email, email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat, now.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+                new Claim(JwtRegisteredClaimNames.Exp, expires.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64) // Adicionado Exp correto
             };
+
 
 
             foreach (var access in accessList.Acessos)
             {
-                claims.Add(new Claim("access", access.NomeAcesso));
+                claims.Add(new Claim(ClaimTypes.Role, access.NomeAcesso));
             }
 
-            string secretKey = _configuration.GetValue<string>("Jwt:Key");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            string issuerT = _configuration.GetValue<string>("Jwt:Issuer");
-            string audienceT = _configuration.GetValue<string>("Jwt:Audience");
 
             var token = new JwtSecurityToken(
-                issuer: issuerT,
-                audience: audienceT,
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                notBefore: now.UtcDateTime,
+                expires: expires.UtcDateTime,
                 signingCredentials: creds
-                );
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            );
 
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

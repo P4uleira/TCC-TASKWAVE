@@ -75,11 +75,13 @@
 
 	private async Task Logar()
 	{
-		var response = await Http.PostAsJsonAsync("api/Auth", user);
+		var response = await Http.PostAsJsonAsync("api/Auth/login", user);
 		var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
 		if (response.IsSuccessStatusCode){
-			((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(loginResponse.Token);
+			await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(loginResponse.Token);
+			await ApiService.SetAuthorizeHeaderAsync();
+
 			NavigationManager.NavigateTo("/TarefasManage");
 		}else
 		{

@@ -16,10 +16,12 @@ builder.Services.AddBlazorBootstrap();
 var baseAddress = builder.Configuration.GetValue<string>("BaseUrl");
 
 builder.Services.AddAuthentication();
+builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthorization();
 
 builder.Services.AddOutputCache();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddScoped<ApiService>();
 
 builder.Services.AddScoped(sp =>
 {
