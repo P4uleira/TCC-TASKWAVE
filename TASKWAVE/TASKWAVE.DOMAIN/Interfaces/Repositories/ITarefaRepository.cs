@@ -2,5 +2,7 @@
 
 namespace TASKWAVE.DOMAIN.Interfaces.Repositories
 {
-    public interface ITarefaRepository : IBaseRepository<Tarefa>{}
+    public interface ITarefaRepository : IBaseRepository<Tarefa>{
+        public Task<List<Tarefa>> GetTasksByUsuarioEquipe(int usuarioId);
+    }
 }
