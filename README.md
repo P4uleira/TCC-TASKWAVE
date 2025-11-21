@@ -1,5 +1,3 @@
----
-
 # 🌀 **TaskWave – Sistema de Gestão de Tarefas e Ambientes**
 
 ## 📌 **Descrição Geral**
