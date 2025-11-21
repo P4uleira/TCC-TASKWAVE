@@ -6,6 +6,10 @@
 
 O projeto foi construído seguindo boas práticas de arquitetura, autenticação robusta via **JWT** e um modelo claro de camadas para garantir organização, escalabilidade e fácil manutenção.
 
+## 📌 Documentação do projeto: 
+
+[TGII-TASKWAVE .pdf](https://github.com/user-attachments/files/23676798/TGII-TASKWAVE.pdf)
+
 ---
 
 ## 🎯 **Objetivo do Sistema**
